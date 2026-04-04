@@ -196,9 +196,8 @@ http://localhost:8080/products
 
 ## 👨‍💻 Autoría
 
-Proyecto desarrollado por alumnos de Certus
+Proyecto desarrollado por alumnos Grupo 1 compuesto por alumnos de Certus del Curso:
 
-Curso:
 **Diseño de Soluciones Basadas en Servicios**
 
 ---
