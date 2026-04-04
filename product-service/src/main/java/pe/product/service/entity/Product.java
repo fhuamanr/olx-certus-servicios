@@ -3,8 +3,6 @@ package pe.product.service.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,17 +35,14 @@ public class Product {
 
     // IMÁGENES
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private List<ProductImage> images;
 
     // ATRIBUTOS
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private List<ProductAttribute> attributes;
 
     // UBICACIÓN
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private ProductLocation location;
 
 	public Long getId() {
@@ -137,6 +132,4 @@ public class Product {
 	public void setLocation(ProductLocation location) {
 		this.location = location;
 	}
-    
-    
 }

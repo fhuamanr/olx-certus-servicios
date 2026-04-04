@@ -1,134 +1,162 @@
 {
   "info": {
-    "_postman_id": "7a98986b-dab9-440b-bbdb-e8701ab7238e",
-    "name": "Certus OLX",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "9484900"
+    "name": "Product Service API - OLX Style",
+    "_postman_id": "12345-olx-product-service",
+    "description": "Colección para probar el microservicio de productos estilo marketplace",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    }
+  ],
   "item": [
     {
-      "name": "Obtener Productos",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/products",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "products"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Insertar Productos",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"name\": \"iPhone 17\",\r\n  \"price\": 3700,\r\n  \"stock\": 15\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+      "name": "CATEGORY",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Celulares\",\n  \"description\": \"Equipos móviles\"\n}"
+            },
+            "url": "{{base_url}}/categories"
           }
         },
-        "url": {
-          "raw": "http://localhost:8080/products",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "products"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Obtener Producto por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/products/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "products",
-            "1"
-          ],
-          "query": [
-            {
-              "key": "",
-              "value": null,
-              "type": "text",
-              "disabled": true
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Actualizar Producto",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"name\": \"iPhone 17\",\r\n  \"price\": 3700,\r\n  \"stock\": 15\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories"
           }
         },
-        "url": {
-          "raw": "http://localhost:8080/products/{id}",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "products",
-            "{id}"
-          ]
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Celulares Actualizado\",\n  \"description\": \"Nueva descripción\"\n}"
+            },
+            "url": "{{base_url}}/categories/1"
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/categories/1"
+          }
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Borrar Producto",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/products/{id}",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "products",
-            "{id}"
-          ]
+      "name": "PRODUCT (FULL OLX)",
+      "item": [
+        {
+          "name": "Create Product FULL",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone 13\",\n  \"description\": \"Como nuevo\",\n  \"price\": 2500,\n  \"userId\": 1,\n  \"category\": {\n    \"id\": 1\n  },\n  \"images\": [\n    {\n      \"url\": \"img1.jpg\",\n      \"isPrimary\": true\n    },\n    {\n      \"url\": \"img2.jpg\",\n      \"isPrimary\": false\n    }\n  ],\n  \"attributes\": [\n    {\n      \"attributeName\": \"Color\",\n      \"attributeValue\": \"Negro\"\n    },\n    {\n      \"attributeName\": \"Memoria\",\n      \"attributeValue\": \"128GB\"\n    }\n  ],\n  \"location\": {\n    \"country\": \"Peru\",\n    \"city\": \"Lima\",\n    \"address\": \"Miraflores\",\n    \"latitude\": -12.12,\n    \"longitude\": -77.03\n  }\n}"
+            },
+            "url": "{{base_url}}/products"
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/products"
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/products/1"
+          }
+        },
+        {
+          "name": "Update Product FULL",
+          "request": {
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone 13 Pro\",\n  \"description\": \"Actualizado\",\n  \"price\": 2800,\n  \"userId\": 1,\n  \"category\": {\n    \"id\": 1\n  }\n}"
+            },
+            "url": "{{base_url}}/products/1"
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/products/1"
+          }
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "PRODUCT IMAGE",
+      "item": [
+        {
+          "name": "Get Images by Product",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/images/product/1"
+          }
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/images/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT ATTRIBUTE",
+      "item": [
+        {
+          "name": "Get Attributes by Product",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/attributes/product/1"
+          }
+        },
+        {
+          "name": "Delete Attribute",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/attributes/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "PRODUCT LOCATION",
+      "item": [
+        {
+          "name": "Get Location by Product",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/locations/product/1"
+          }
+        },
+        {
+          "name": "Delete Location",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/locations/1"
+          }
+        }
+      ]
     }
   ]
 }
