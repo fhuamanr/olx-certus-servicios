@@ -83,7 +83,7 @@ services:
       rabbitmq:
         condition: service_healthy
     ports:
-      - "8081:8081"
+      - "8082:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-order:3306/orderdb
       SPRING_DATASOURCE_USERNAME: root
