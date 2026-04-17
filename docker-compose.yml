@@ -8,6 +8,8 @@ services:
       MYSQL_DATABASE: productdb
     ports:
       - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -18,20 +20,26 @@ services:
     container_name: rabbitmq
     restart: always
     ports:
-      - "5672:5672"   # comunicación interna (apps)
-      - "15672:15672" # panel web
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      retries: 10
 
   product-service:
-    build: ./product-service
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
     container_name: product-service
     depends_on:
       mysql:
         condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -39,8 +47,14 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
 
-      #conexión a RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+
+      SPRING_RABBITMQ_TEMPLATE_MANDATORY: true
+
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
+
+volumes:
+  mysql_data:

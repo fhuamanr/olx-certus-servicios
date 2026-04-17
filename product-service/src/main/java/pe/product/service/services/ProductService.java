@@ -7,15 +7,19 @@ import org.springframework.stereotype.Service;
 
 
 import pe.product.service.entity.Product;
+import pe.product.service.event.ProductCreatedEvent;
+import pe.product.service.producer.ProductEventProducer;
 import pe.product.service.repository.ProductRepository;
 
 @Service
 public class ProductService {
 
     private final ProductRepository repository;
+    private final ProductEventProducer producer;
     
-    public ProductService(ProductRepository repository) {
+    public ProductService(ProductRepository repository, ProductEventProducer producer) {
         this.repository = repository;
+        this.producer = producer;
     }
 
     //Obtener todos los productos (listings)
@@ -31,11 +35,22 @@ public class ProductService {
     // Crear producto (listing)
     public Product save(Product product) {
 
-       
         product.setStatus("ACTIVE");
         product.setCreatedAt(LocalDateTime.now());
 
-        return repository.save(product);
+        Product saved = repository.save(product);
+
+        // 🔥 ENVIAR EVENTO
+        ProductCreatedEvent event = new ProductCreatedEvent(
+                saved.getId(),
+                saved.getUserId(),
+                saved.getName(),
+                saved.getPrice()
+        );
+
+        producer.sendProductCreatedEvent(event);
+
+        return saved;
     }
 
     // Actualizar producto
