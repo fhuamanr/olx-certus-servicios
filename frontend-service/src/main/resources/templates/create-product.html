@@ -15,26 +15,48 @@
 
     <h3>Publicar Producto</h3>
 
-    <form method="post" action="/products/create">
+	<form th:action="@{/products/create}" method="post">
 
-        <div class="mb-3">
-            <label>Nombre</label>
-            <input name="name" class="form-control" required>
-        </div>
+	    <!-- BASICO -->
+	    <input name="name" placeholder="Nombre" class="form-control mb-2">
+	    <textarea name="description" class="form-control mb-2"></textarea>
+	    <input name="price" type="number" class="form-control mb-2">
+	    <input name="userId" type="number" value="1" class="form-control mb-2">
 
-        <div class="mb-3">
-            <label>Descripción</label>
-            <textarea name="description" class="form-control"></textarea>
-        </div>
+	    <!-- CATEGORY -->
+	    <label>Categoría</label>
+	    <input name="category.id" type="number" class="form-control mb-3">
 
-        <div class="mb-3">
-            <label>Precio</label>
-            <input name="price" type="number" class="form-control" required>
-        </div>
+	    <!-- IMAGES -->
+	    <h5>Imágenes</h5>
 
-        <button class="btn btn-primary">Publicar</button>
+	    <input name="images[0].url" class="form-control mb-1" placeholder="URL imagen 1">
+	    <input name="images[0].isPrimary" type="checkbox"> Principal
 
-    </form>
+	    <input name="images[1].url" class="form-control mb-1" placeholder="URL imagen 2">
+	    <input name="images[1].isPrimary" type="checkbox"> Principal
+
+	    <!-- ATTRIBUTES -->
+	    <h5>Atributos</h5>
+
+	    <input name="attributes[0].attributeName" class="form-control mb-1" placeholder="Nombre">
+	    <input name="attributes[0].attributeValue" class="form-control mb-2" placeholder="Valor">
+
+	    <input name="attributes[1].attributeName" class="form-control mb-1" placeholder="Nombre">
+	    <input name="attributes[1].attributeValue" class="form-control mb-2" placeholder="Valor">
+
+	    <!-- LOCATION -->
+	    <h5>Ubicación</h5>
+
+	    <input name="location.country" class="form-control mb-1" placeholder="País">
+	    <input name="location.city" class="form-control mb-1" placeholder="Ciudad">
+	    <input name="location.address" class="form-control mb-1" placeholder="Dirección">
+	    <input name="location.latitude" class="form-control mb-1" placeholder="Latitud">
+	    <input name="location.longitude" class="form-control mb-3" placeholder="Longitud">
+
+	    <button class="btn btn-primary">Publicar</button>
+
+	</form>
 
 </div>
 

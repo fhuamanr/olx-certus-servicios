@@ -17,12 +17,10 @@ public class ProductAttribute {
     private Long id;
 
     private String attributeName;
-
     private String attributeValue;
 
-    // 🔥 RELACIÓN
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id") // 🔥 CLAVE
     @JsonIgnore
     private Product product;
 

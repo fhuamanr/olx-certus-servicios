@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Entity
 @Table(name = "products")
 @Data
@@ -18,31 +19,27 @@ public class Product {
     private Long id;
 
     private String name;
-
     private String description;
-
     private Double price;
-
     private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
 
     private String status;
-
     private LocalDateTime createdAt;
 
-    // IMÁGENES
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    // 🔥 IMÁGENES
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ProductImage> images;
 
-    // ATRIBUTOS
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    // 🔥 ATRIBUTOS
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ProductAttribute> attributes;
 
-    // UBICACIÓN
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    // 🔥 UBICACIÓN
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private ProductLocation location;
 
 	public Long getId() {
@@ -132,4 +129,6 @@ public class Product {
 	public void setLocation(ProductLocation location) {
 		this.location = location;
 	}
+    
+    
 }

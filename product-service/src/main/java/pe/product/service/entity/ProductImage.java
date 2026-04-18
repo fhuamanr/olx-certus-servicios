@@ -17,12 +17,10 @@ public class ProductImage {
     private Long id;
 
     private String url;
-
     private Boolean isPrimary;
 
-    // 🔥 RELACIÓN
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id") // 🔥 CLAVE
     @JsonIgnore
     private Product product;
 

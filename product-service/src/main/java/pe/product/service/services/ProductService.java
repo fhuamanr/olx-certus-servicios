@@ -9,6 +9,8 @@ import pe.product.service.dto.CategoryDTO;
 import pe.product.service.dto.ImageDTO;
 import pe.product.service.dto.ProductResponse;
 import pe.product.service.entity.Product;
+import pe.product.service.entity.ProductAttribute;
+import pe.product.service.entity.ProductImage;
 import pe.product.service.event.ProductCreatedEvent;
 import pe.product.service.producer.ProductEventProducer;
 import pe.product.service.repository.ProductRepository;
@@ -43,6 +45,24 @@ public class ProductService {
     // Crear producto (listing)
     public Product save(Product product) {
 
+    	  // 🔥 SET RELACIÓN IMÁGENES
+        if (product.getImages() != null) {
+            for (ProductImage img : product.getImages()) {
+                img.setProduct(product);
+            }
+        }
+
+        // 🔥 SET RELACIÓN ATRIBUTOS
+        if (product.getAttributes() != null) {
+            for (ProductAttribute attr : product.getAttributes()) {
+                attr.setProduct(product);
+            }
+        }
+
+        // 🔥 SET RELACIÓN LOCATION
+        if (product.getLocation() != null) {
+            product.getLocation().setProduct(product);
+        }
         product.setStatus("ACTIVE");
         product.setCreatedAt(LocalDateTime.now());
 
