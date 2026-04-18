@@ -139,7 +139,7 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-service
     ports:
-      - "8080:8080"
+      - "8089:8080"
     restart: unless-stopped
     environment:
       PRODUCT_SERVICE_URL: http://product-service:8080
