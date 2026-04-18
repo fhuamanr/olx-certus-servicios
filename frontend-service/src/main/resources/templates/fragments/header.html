@@ -1,18 +1,44 @@
 <div th:fragment="header">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container">
 
-        <a class="navbar-brand fw-bold" href="/">OLX Demo</a>
+        <!-- LOGO -->
+        <a class="navbar-brand fw-bold" href="/">
+            OLX <span class="fw-light">Certus</span>
+        </a>
 
-        <form class="d-flex ms-3 w-50">
-            <input class="form-control me-2" type="search" placeholder="Buscar productos...">
-            <button class="btn btn-light">Buscar</button>
-        </form>
+        <!-- BOTON MOBILE -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <div class="ms-auto">
-            <a href="#" class="btn btn-light me-2">Login</a>
-            <a href="/products/new" class="btn btn-warning">Publicar</a>
+        <!-- CONTENIDO -->
+        <div class="collapse navbar-collapse" id="navbarMain">
+
+            <!-- BUSCADOR -->
+            <form class="d-flex mx-auto w-50">
+                <input class="form-control me-2 rounded-pill" type="search" placeholder="¿Qué estás buscando?">
+                <button class="btn btn-light rounded-pill px-4">Buscar</button>
+            </form>
+
+            <!-- ACCIONES -->
+            <div class="d-flex align-items-center gap-2">
+
+                <a class="nav-link text-white" href="/categories">
+                    Categorías
+                </a>
+
+                <a href="#" class="btn btn-outline-light btn-sm">
+                    Login
+                </a>
+
+                <a href="/products/new" class="btn btn-warning btn-sm fw-bold">
+                    + Publicar
+                </a>
+
+            </div>
+
         </div>
 
     </div>

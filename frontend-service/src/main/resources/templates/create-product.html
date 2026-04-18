@@ -21,11 +21,17 @@
 	    <input name="name" placeholder="Nombre" class="form-control mb-2">
 	    <textarea name="description" class="form-control mb-2"></textarea>
 	    <input name="price" type="number" class="form-control mb-2">
-	    <input name="userId" type="number" value="1" class="form-control mb-2">
+	    <input type="hidden" name="userId" value="1">
 
 	    <!-- CATEGORY -->
-	    <label>Categoría</label>
-	    <input name="category.id" type="number" class="form-control mb-3">
+		<select name="category.id" class="form-control">
+
+		    <option th:each="c : ${categories}"
+		            th:value="${c.id}"
+		            th:text="${c.name}">
+		    </option>
+
+		</select>
 
 	    <!-- IMAGES -->
 	    <h5>Imágenes</h5>

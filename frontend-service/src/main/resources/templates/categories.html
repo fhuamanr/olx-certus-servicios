@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Categorías</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Categorías</h3>
+        <a href="/categories/new" class="btn btn-primary">+ Nueva categoría</a>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-3" th:each="c : ${categories}">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body text-center">
+                    <h5 th:text="${c.name}"></h5>
+                    <p class="text-muted small" th:text="${c.description}"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
