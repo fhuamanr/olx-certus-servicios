@@ -19,9 +19,13 @@ public class ProductEventProducer {
         System.out.println("🔥 ENVIANDO EVENTO A RABBIT: " + event.getName());
 
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
-                event
-        );
+        	    RabbitMQConfig.EXCHANGE,
+        	    RabbitMQConfig.ROUTING_KEY,
+        	    event,
+        	    message -> {
+        	        message.getMessageProperties().setHeader("__TypeId__", null); // 🔥 ESTE ES EL FIX REAL
+        	        return message;
+        	    }
+        	);
     }
 }
