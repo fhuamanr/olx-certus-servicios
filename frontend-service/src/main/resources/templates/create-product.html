@@ -11,58 +11,115 @@
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container mt-4">
+<div class="container mt-4" style="max-width: 900px;">
 
-    <h3>Publicar Producto</h3>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
 
-	<form th:action="@{/products/create}" method="post">
+            <h3 class="mb-4">Publicar producto</h3>
 
-	    <!-- BASICO -->
-	    <input name="name" placeholder="Nombre" class="form-control mb-2">
-	    <textarea name="description" class="form-control mb-2"></textarea>
-	    <input name="price" type="number" class="form-control mb-2">
-	    <input type="hidden" name="userId" value="1">
+            <form method="post" action="/products/create">
 
-	    <!-- CATEGORY -->
-		<select name="category.id" class="form-control">
+                <!-- 🔹 INFORMACIÓN BÁSICA -->
+                <h5 class="mb-3">📦 Información básica</h5>
 
-		    <option th:each="c : ${categories}"
-		            th:value="${c.id}"
-		            th:text="${c.name}">
-		    </option>
+                <div class="row">
 
-		</select>
+                    <div class="col-md-8 mb-3">
+                        <label>Nombre del producto</label>
+                        <input name="name" class="form-control" placeholder="Ej: iPhone 15 Pro Max" required>
+                    </div>
 
-	    <!-- IMAGES -->
-	    <h5>Imágenes</h5>
+                    <div class="col-md-4 mb-3">
+                        <label>Precio (S/)</label>
+                        <input name="price" type="number" class="form-control" required>
+                    </div>
 
-	    <input name="images[0].url" class="form-control mb-1" placeholder="URL imagen 1">
-	    <input name="images[0].isPrimary" type="checkbox"> Principal
+                </div>
 
-	    <input name="images[1].url" class="form-control mb-1" placeholder="URL imagen 2">
-	    <input name="images[1].isPrimary" type="checkbox"> Principal
+                <div class="mb-3">
+                    <label>Descripción</label>
+                    <textarea name="description" class="form-control" rows="3"
+                        placeholder="Describe el estado, detalles importantes, etc."></textarea>
+                </div>
 
-	    <!-- ATTRIBUTES -->
-	    <h5>Atributos</h5>
+                <div class="mb-4">
+                    <label>Categoría</label>
+                    <select name="category.id" class="form-control">
+                        <option th:each="c : ${categories}"
+                                th:value="${c.id}"
+                                th:text="${c.name}">
+                        </option>
+                    </select>
+                </div>
 
-	    <input name="attributes[0].attributeName" class="form-control mb-1" placeholder="Nombre">
-	    <input name="attributes[0].attributeValue" class="form-control mb-2" placeholder="Valor">
+                <!-- 🔹 IMÁGENES -->
+                <h5 class="mb-3">🖼️ Imágenes</h5>
 
-	    <input name="attributes[1].attributeName" class="form-control mb-1" placeholder="Nombre">
-	    <input name="attributes[1].attributeValue" class="form-control mb-2" placeholder="Valor">
+                <div class="mb-3">
+                    <input name="images[0].url" class="form-control mb-2" placeholder="URL imagen principal">
+                    <input type="checkbox" name="images[0].isPrimary" checked> Principal
+                </div>
 
-	    <!-- LOCATION -->
-	    <h5>Ubicación</h5>
+                <div class="mb-4">
+                    <input name="images[1].url" class="form-control mb-2" placeholder="URL imagen secundaria">
+                    <input type="checkbox" name="images[1].isPrimary"> Principal
+                </div>
 
-	    <input name="location.country" class="form-control mb-1" placeholder="País">
-	    <input name="location.city" class="form-control mb-1" placeholder="Ciudad">
-	    <input name="location.address" class="form-control mb-1" placeholder="Dirección">
-	    <input name="location.latitude" class="form-control mb-1" placeholder="Latitud">
-	    <input name="location.longitude" class="form-control mb-3" placeholder="Longitud">
+                <!-- 🔹 ATRIBUTOS -->
+                <h5 class="mb-3">⚙️ Características</h5>
 
-	    <button class="btn btn-primary">Publicar</button>
+                <div class="row">
 
-	</form>
+                    <div class="col-md-6 mb-2">
+                        <input name="attributes[0].attributeName" class="form-control" placeholder="Ej: Color">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <input name="attributes[0].attributeValue" class="form-control" placeholder="Ej: Negro">
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <input name="attributes[1].attributeName" class="form-control" placeholder="Ej: Memoria">
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <input name="attributes[1].attributeValue" class="form-control" placeholder="Ej: 256GB">
+                    </div>
+
+                </div>
+
+                <!-- 🔹 UBICACIÓN -->
+                <h5 class="mb-3">📍 Ubicación</h5>
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <input name="location.country" class="form-control" placeholder="País">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <input name="location.city" class="form-control" placeholder="Ciudad">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <input name="location.address" class="form-control" placeholder="Dirección">
+                    </div>
+
+                </div>
+
+                <!-- 🔹 HIDDEN -->
+                <input type="hidden" name="userId" value="1">
+
+                <!-- 🔹 BOTÓN -->
+                <button class="btn btn-warning w-100 fw-bold py-2">
+                    🚀 Publicar producto
+                </button>
+
+            </form>
+
+        </div>
+    </div>
 
 </div>
 
