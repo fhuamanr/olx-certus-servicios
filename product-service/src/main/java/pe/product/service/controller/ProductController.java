@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
+import pe.product.service.dto.ProductResponse;
 import pe.product.service.entity.Product;
 import pe.product.service.services.ProductService;
 
@@ -17,10 +18,15 @@ public class ProductController {
         this.service = service;
     }
 
-    // Obtener todos los productos
+//    // Obtener todos los productos
+//    @GetMapping
+//    public List<Product> getAll() {
+//        return service.getAll();
+//    }
+    
     @GetMapping
-    public List<Product> getAll() {
-        return service.getAll();
+    public List<ProductResponse> getAll() {
+        return service.getAllDTO();
     }
 
     // Obtener producto por ID

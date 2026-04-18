@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-
+import pe.product.service.dto.CategoryDTO;
+import pe.product.service.dto.ImageDTO;
+import pe.product.service.dto.ProductResponse;
 import pe.product.service.entity.Product;
 import pe.product.service.event.ProductCreatedEvent;
 import pe.product.service.producer.ProductEventProducer;
@@ -25,6 +27,12 @@ public class ProductService {
     //Obtener todos los productos (listings)
     public List<Product> getAll() {
         return repository.findAll();
+    }
+    
+    public List<ProductResponse> getAllDTO() {
+        return getAll().stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
     // Obtener por ID
@@ -88,5 +96,39 @@ public class ProductService {
     // Productos por estado
     public List<Product> getByStatus(String status) {
         return repository.findByStatus(status);
+    }
+    
+    public ProductResponse mapToDTO(Product p) {
+
+        ProductResponse dto = new ProductResponse();
+
+        dto.setId(p.getId());
+        dto.setName(p.getName());
+        dto.setDescription(p.getDescription());
+        dto.setPrice(p.getPrice());
+        dto.setUserId(p.getUserId());
+        dto.setStatus(p.getStatus());
+        dto.setCreatedAt(p.getCreatedAt());
+
+        // CATEGORY
+        if (p.getCategory() != null) {
+            CategoryDTO c = new CategoryDTO();
+            c.setId(p.getCategory().getId());
+            c.setName(p.getCategory().getName());
+            dto.setCategory(c);
+        }
+
+        // IMAGES
+        if (p.getImages() != null) {
+            dto.setImages(
+                p.getImages().stream().map(img -> {
+                    ImageDTO i = new ImageDTO();
+                    i.setUrl(img.getUrl());
+                    return i;
+                }).toList()
+            );
+        }
+
+        return dto;
     }
 }

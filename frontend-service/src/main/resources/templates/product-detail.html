@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::content})}">
+
+<div th:fragment="content">
+
+    <div class="row">
+
+        <!-- Imagen -->
+        <div class="col-md-6">
+            <img th:src="${#lists.isEmpty(product.images) ? 'https://via.placeholder.com/500x400' : product.images[0].url}"
+                 class="img-fluid rounded">
+        </div>
+
+        <!-- Info -->
+        <div class="col-md-6">
+
+            <h3 th:text="${product.name}"></h3>
+
+            <span class="badge bg-secondary"
+                  th:text="${product.category.name}">
+            </span>
+
+            <h2 class="text-success mt-3"
+                th:text="'S/ ' + ${product.price}">
+            </h2>
+
+            <p class="mt-3"
+               th:text="${product.description}">
+            </p>
+
+            <button class="btn btn-warning mt-3 w-100">
+                Contactar vendedor
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+</html>
