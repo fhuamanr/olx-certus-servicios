@@ -9,8 +9,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: productdb
-      MYSQL_USER: ${MYSQL_USER:-productuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-productpass}
     volumes:
       - mysql_product_data:/var/lib/mysql
     healthcheck:
@@ -28,8 +26,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: userdb
-      MYSQL_USER: ${MYSQL_USER:-useruser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-userpass}
     volumes:
       - mysql_user_data:/var/lib/mysql
     healthcheck:
@@ -47,8 +43,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: orderdb
-      MYSQL_USER: ${MYSQL_USER:-orderuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-orderpass}
     volumes:
       - mysql_order_data:/var/lib/mysql
     healthcheck:
@@ -89,8 +83,8 @@ services:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-product:3306/productdb
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-productuser}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-productpass}
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
@@ -116,8 +110,8 @@ services:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-user:3306/userdb
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-useruser}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-userpass}
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
@@ -143,8 +137,8 @@ services:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-order:3306/orderdb
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-orderuser}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-orderpass}
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}

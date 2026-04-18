@@ -17,8 +17,6 @@ Configura las siguientes variables de entorno en Coolify para cada servicio:
 | Variable | Valor por defecto | Descripción |
 |----------|-------------------|-------------|
 | `MYSQL_ROOT_PASSWORD` | `root` | Contraseña del root de MySQL |
-| `MYSQL_USER` | `productuser` | Usuario MySQL para product-service |
-| `MYSQL_PASSWORD` | `productpass` | Contraseña del usuario MySQL product-service |
 | `RABBITMQ_USER` | `guest` | Usuario RabbitMQ |
 | `RABBITMQ_PASSWORD` | `guest` | Contraseña RabbitMQ |
 
@@ -26,8 +24,8 @@ Configura las siguientes variables de entorno en Coolify para cada servicio:
 
 **product-service:**
 - `SPRING_DATASOURCE_URL`: `jdbc:mysql://mysql-product:3306/productdb`
-- `SPRING_DATASOURCE_USERNAME`: `productuser`
-- `SPRING_DATASOURCE_PASSWORD`: `productpass`
+- `SPRING_DATASOURCE_USERNAME`: `root`
+- `SPRING_DATASOURCE_PASSWORD`: `root`
 - `SPRING_RABBITMQ_HOST`: `rabbitmq`
 - `SPRING_RABBITMQ_PORT`: `5672`
 - `SPRING_RABBITMQ_USERNAME`: `guest`
@@ -35,8 +33,8 @@ Configura las siguientes variables de entorno en Coolify para cada servicio:
 
 **user-service:**
 - `SPRING_DATASOURCE_URL`: `jdbc:mysql://mysql-user:3306/userdb`
-- `SPRING_DATASOURCE_USERNAME`: `useruser`
-- `SPRING_DATASOURCE_PASSWORD`: `userpass`
+- `SPRING_DATASOURCE_USERNAME`: `root`
+- `SPRING_DATASOURCE_PASSWORD`: `root`
 - `SPRING_RABBITMQ_HOST`: `rabbitmq`
 - `SPRING_RABBITMQ_PORT`: `5672`
 - `SPRING_RABBITMQ_USERNAME`: `guest`
@@ -44,8 +42,8 @@ Configura las siguientes variables de entorno en Coolify para cada servicio:
 
 **order-service:**
 - `SPRING_DATASOURCE_URL`: `jdbc:mysql://mysql-order:3306/orderdb`
-- `SPRING_DATASOURCE_USERNAME`: `orderuser`
-- `SPRING_DATASOURCE_PASSWORD`: `orderpass`
+- `SPRING_DATASOURCE_USERNAME`: `root`
+- `SPRING_DATASOURCE_PASSWORD`: `root`
 - `SPRING_RABBITMQ_HOST`: `rabbitmq`
 - `SPRING_RABBITMQ_PORT`: `5672`
 - `SPRING_RABBITMQ_USERNAME`: `guest`
@@ -94,6 +92,7 @@ Una vez desplegado, los servicios estarán disponibles en:
 2. **Nombres de servicio**: Los servicios se comunican entre sí usando los nombres de servicio (ej: `product-service`, `user-service`).
 3. **Build automático**: Coolify construirá las imágenes automáticamente desde los Dockerfiles.
 4. **Restart policy**: Todos los servicios tienen `restart: unless-stopped` para alta disponibilidad.
+5. **MySQL**: Todos los servicios usan `root` como usuario para evitar problemas de permisos.
 
 ## Estructura del Proyecto
 
@@ -102,6 +101,7 @@ olx-certus-servicios/
 ├── docker-compose.coolify.yml    # Docker Compose para Coolify
 ├── docker-compose.yml            # Docker Compose local
 ├── docker-compose.local.yml      # Docker Compose local con debug
+├── .env.coolify                  # Variables de entorno para Coolify
 ├── frontend-service/             # Frontend Service
 │   ├── Dockerfile
 │   ├── pom.xml
