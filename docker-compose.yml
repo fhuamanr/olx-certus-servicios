@@ -15,6 +15,22 @@ services:
       interval: 5s
       retries: 10
 
+  mysql-user:
+    image: mysql:8
+    container_name: mysql-user
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: userdb
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -33,7 +49,6 @@ services:
   product-service:
     build:
       context: ./product-service
-      dockerfile: Dockerfile
     container_name: product-service
     depends_on:
       mysql:
@@ -46,38 +61,36 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/productdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-
       SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
-
-      SPRING_RABBITMQ_TEMPLATE_MANDATORY: true
-      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
 
   user-service:
     build:
       context: ./user-service
-      dockerfile: Dockerfile
     container_name: user-service
     depends_on:
-      mysql:
+      mysql-user:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     ports:
       - "8081:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/productdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-user:3306/userdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-
       SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
 
-      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
+  frontend-service:
+    build:
+      context: ./frontend-service
+    container_name: frontend-service
+    depends_on:
+      - product-service
+      - user-service
+    ports:
+      - "8082:8080"
+
 
 volumes:
   mysql_data:
+  mysql_user_data:
