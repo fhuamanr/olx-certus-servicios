@@ -3,7 +3,7 @@ package pe.user.service.event;
 public class ProductCreatedEvent {
 
     private Long productId;
-    private Long userId;
+    private Long sellerId;
     private String name;
     private Double price;
 	public Long getProductId() {
@@ -12,11 +12,13 @@ public class ProductCreatedEvent {
 	public void setProductId(Long productId) {
 		this.productId = productId;
 	}
-	public Long getUserId() {
-		return userId;
+	
+		
+	public Long getSellerId() {
+		return sellerId;
 	}
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setSellerId(Long sellerId) {
+		this.sellerId = sellerId;
 	}
 	public String getName() {
 		return name;

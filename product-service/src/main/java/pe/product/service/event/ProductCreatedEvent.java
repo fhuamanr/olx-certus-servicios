@@ -3,13 +3,13 @@ package pe.product.service.event;
 public class ProductCreatedEvent {
 
     private Long productId;
-    private Long userId;
+    private Long sellerId; // 🔥 CAMBIO CLAVE
     private String name;
     private Double price;
 
-    public ProductCreatedEvent(Long productId, Long userId, String name, Double price) {
+    public ProductCreatedEvent(Long productId, Long sellerId, String name, Double price) {
         this.productId = productId;
-        this.userId = userId;
+        this.sellerId = sellerId;
         this.name = name;
         this.price = price;
     }
@@ -24,12 +24,12 @@ public class ProductCreatedEvent {
         this.productId = productId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getSellerId() {
+        return sellerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
     }
 
     public String getName() {

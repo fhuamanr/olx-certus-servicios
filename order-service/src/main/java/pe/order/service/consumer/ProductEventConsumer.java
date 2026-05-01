@@ -20,13 +20,21 @@ public class ProductEventConsumer {
     @RabbitListener(queues = RabbitMQConfig.PRODUCT_CREATED_QUEUE)
     public void handleProductCreated(ProductCreatedEvent event) {
 
+        System.out.println("PRODUCT EVENT RECIBIDO EN ORDER:");
+        System.out.println("productId: " + event.getProductId());
+        System.out.println("sellerId: " + event.getSellerId());
+        System.out.println("name: " + event.getName());
+        System.out.println("price: " + event.getPrice());
+
         ProductSnapshot snapshot = new ProductSnapshot();
         snapshot.setProductId(event.getProductId());
+        snapshot.setSellerId(event.getSellerId());
         snapshot.setName(event.getName());
         snapshot.setPrice(event.getPrice());
-        snapshot.setSellerId(event.getSellerId());
         snapshot.setAvailable(true);
 
         repository.save(snapshot);
+
+        System.out.println("PRODUCT SNAPSHOT GUARDADO: " + event.getName());
     }
 }

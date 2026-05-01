@@ -14,7 +14,7 @@ import org.springframework.amqp.support.converter.DefaultClassMapper;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE = "product.created.queue";
+    public static final String QUEUE = "product.created.user.queue";
     public static final String EXCHANGE = "product.exchange";
     public static final String ROUTING_KEY = "product.created";
     

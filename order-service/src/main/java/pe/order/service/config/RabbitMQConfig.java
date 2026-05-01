@@ -16,7 +16,7 @@ public class RabbitMQConfig {
     public static final String ORDER_CREATED_ROUTING_KEY = "order.created";
 
     // Eventos que order-service CONSUME desde product-service
-    public static final String PRODUCT_CREATED_QUEUE = "product.created.queue";
+    public static final String PRODUCT_CREATED_QUEUE = "product.created.order.queue";
     public static final String PRODUCT_EXCHANGE = "product.exchange";
     public static final String PRODUCT_CREATED_ROUTING_KEY = "product.created";
     

@@ -26,7 +26,7 @@ public class ProductEventConsumer {
 
         ProductEventLog log = new ProductEventLog();
         log.setProductId(event.getProductId());
-        log.setUserId(event.getUserId());
+        log.setUserId(event.getSellerId());
         log.setName(event.getName());
         log.setPrice(event.getPrice());
         log.setReceivedAt(LocalDateTime.now());
