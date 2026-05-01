@@ -8,7 +8,7 @@ WORKDIR /app
 # Copia todo el proyecto
 COPY . .
 
-# Compila el proyecto (sin tests para mayor velocidad)
+# Compila el proyecto
 RUN mvn clean package -DskipTests
 
 
@@ -19,11 +19,11 @@ FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
-# Copia solo el JAR desde el stage anterior
+# Copia el jar generado
 COPY --from=build /app/target/*.jar app.jar
 
-# Exponer puerto
-EXPOSE 8081
+# Puerto estándar de Spring Boot
+EXPOSE 8080
 
 # Ejecutar aplicación
 ENTRYPOINT ["java","-jar","app.jar"]

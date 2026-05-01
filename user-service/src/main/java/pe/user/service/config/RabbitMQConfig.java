@@ -17,6 +17,10 @@ public class RabbitMQConfig {
     public static final String QUEUE = "product.created.queue";
     public static final String EXCHANGE = "product.exchange";
     public static final String ROUTING_KEY = "product.created";
+    
+    public static final String USER_CREATED_QUEUE = "user.created.queue";
+    public static final String USER_EXCHANGE = "user.exchange";
+    public static final String USER_CREATED_ROUTING_KEY = "user.created";
 
     @Bean
     public Queue queue() {
@@ -66,5 +70,23 @@ public class RabbitMQConfig {
         factory.setMessageConverter(messageConverter());
 
         return factory;
+    }
+    
+    @Bean
+    public Queue userCreatedQueue() {
+        return QueueBuilder.durable(USER_CREATED_QUEUE).build();
+    }
+
+    @Bean
+    public TopicExchange userExchange() {
+        return ExchangeBuilder.topicExchange(USER_EXCHANGE).durable(true).build();
+    }
+
+    @Bean
+    public Binding userCreatedBinding() {
+        return BindingBuilder
+                .bind(userCreatedQueue())
+                .to(userExchange())
+                .with(USER_CREATED_ROUTING_KEY);
     }
 }

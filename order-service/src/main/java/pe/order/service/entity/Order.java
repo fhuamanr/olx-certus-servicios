@@ -2,6 +2,9 @@ package pe.order.service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pe.order.service.enums.OrderStatus;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,7 +26,8 @@ public class Order {
     private String productName;
     private Double productPrice;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     // coordinación OLX
     private String paymentMethod;
@@ -83,14 +87,6 @@ public class Order {
 		this.productPrice = productPrice;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public String getPaymentMethod() {
 		return paymentMethod;
 	}
@@ -133,7 +129,7 @@ public class Order {
 
 	@PrePersist
     public void prePersist() {
-        this.status = (this.status == null) ? "PENDING" : this.status;
+		this.status = (this.status == null) ? OrderStatus.PENDING : this.status;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -142,4 +138,14 @@ public class Order {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	
 }

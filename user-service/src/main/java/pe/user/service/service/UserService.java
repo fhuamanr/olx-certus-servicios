@@ -11,6 +11,8 @@ import pe.user.service.dto.RegisterRequest;
 import pe.user.service.entity.LoginRequest;
 import pe.user.service.entity.LoginResponse;
 import pe.user.service.entity.User;
+import pe.user.service.event.UserCreatedEvent;
+import pe.user.service.producer.UserEventProducer;
 import pe.user.service.repository.UserRepository;
 
 @Service
@@ -20,9 +22,15 @@ public class UserService {
 	private BCryptPasswordEncoder passwordEncoder;
 
     private final UserRepository repository;
+    
+    private final UserEventProducer userEventProducer;
 
-    public UserService(UserRepository repository) {
-        this.repository = repository;
+    public UserService(UserRepository repository,
+	            BCryptPasswordEncoder passwordEncoder,
+	            UserEventProducer userEventProducer) {
+			this.repository = repository;
+			this.passwordEncoder = passwordEncoder;
+			this.userEventProducer = userEventProducer;
     }
 
     public List<User> getAll() {
@@ -100,6 +108,18 @@ public class UserService {
         user.setRole("CUSTOMER");
         user.setEnabled(true);
 
-        return repository.save(user);
+        User saved = repository.save(user);
+
+        UserCreatedEvent event = new UserCreatedEvent(
+                saved.getId(),
+                saved.getName(),
+                saved.getEmail(),
+                saved.getPhone(),
+                saved.getEnabled()
+        );
+
+        userEventProducer.sendUserCreatedEvent(event);
+
+        return saved;
     }
 }

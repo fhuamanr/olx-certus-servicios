@@ -3,6 +3,7 @@ package pe.order.service.controller;
 import org.springframework.web.bind.annotation.*;
 
 import pe.order.service.dto.MessageRequest;
+import pe.order.service.dto.OrderDetailResponse;
 import pe.order.service.entity.Order;
 import pe.order.service.entity.OrderMessage;
 import pe.order.service.service.OrderService;
@@ -57,5 +58,10 @@ public class OrderController {
     @PutMapping("/{id}/status")
     public Order updateStatus(@PathVariable Long id, @RequestParam String status) {
         return orderService.updateOrderStatus(id, status);
+    }
+    
+    @GetMapping("/{id}/detail")
+    public OrderDetailResponse getOrderDetail(@PathVariable Long id) {
+        return orderService.getOrderDetail(id);
     }
 }
