@@ -18,18 +18,24 @@ public class Order {
     private Long productId;
     private Long sellerId;
     private Long buyerId;
+
+    // snapshot del producto
+    private String productName;
+    private Double productPrice;
+
     private String status;
+
+    // coordinación OLX
+    private String paymentMethod;
+    private String deliveryMethod;
+    private String meetingPoint;
+
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public Order(Long productId, Long sellerId, Long buyerId) {
-        this.productId = productId;
-        this.sellerId = sellerId;
-        this.buyerId = buyerId;
-        this.status = "PENDING";
-        this.createdAt = LocalDateTime.now();
-    }
 
-	public Long getId() {
+    
+    public Long getId() {
 		return id;
 	}
 
@@ -61,12 +67,52 @@ public class Order {
 		this.buyerId = buyerId;
 	}
 
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public Double getProductPrice() {
+		return productPrice;
+	}
+
+	public void setProductPrice(Double productPrice) {
+		this.productPrice = productPrice;
+	}
+
 	public String getStatus() {
 		return status;
 	}
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+	public String getDeliveryMethod() {
+		return deliveryMethod;
+	}
+
+	public void setDeliveryMethod(String deliveryMethod) {
+		this.deliveryMethod = deliveryMethod;
+	}
+
+	public String getMeetingPoint() {
+		return meetingPoint;
+	}
+
+	public void setMeetingPoint(String meetingPoint) {
+		this.meetingPoint = meetingPoint;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -76,6 +122,24 @@ public class Order {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-    
-    
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	@PrePersist
+    public void prePersist() {
+        this.status = (this.status == null) ? "PENDING" : this.status;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

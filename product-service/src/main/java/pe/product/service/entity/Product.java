@@ -41,6 +41,13 @@ public class Product {
     // 🔥 UBICACIÓN
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private ProductLocation location;
+    
+    private String brand;
+    private String conditionType; // NEW, USED, REFURBISHED
+    private String slug;
+    private Integer views;
+    private Boolean featured;
+    private LocalDateTime updatedAt;
 
 	public Long getId() {
 		return id;
@@ -129,6 +136,55 @@ public class Product {
 	public void setLocation(ProductLocation location) {
 		this.location = location;
 	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public String getConditionType() {
+		return conditionType;
+	}
+
+	public void setConditionType(String conditionType) {
+		this.conditionType = conditionType;
+	}
+
+	public String getSlug() {
+		return slug;
+	}
+
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+
+	public Integer getViews() {
+		return views;
+	}
+
+	public void setViews(Integer views) {
+		this.views = views;
+	}
+
+	public Boolean getFeatured() {
+		return featured;
+	}
+
+	public void setFeatured(Boolean featured) {
+		this.featured = featured;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
     
+	
     
 }

@@ -18,8 +18,8 @@ public class OrderEventProducer {
         System.out.println("📦 ENVIANDO EVENTO A RABBIT: Order ID=" + event.getOrderId());
 
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE,
-                RabbitMQConfig.ROUTING_KEY,
+                RabbitMQConfig.ORDER_EXCHANGE,
+                RabbitMQConfig.ORDER_CREATED_ROUTING_KEY,
                 event
         );
     }

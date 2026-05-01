@@ -23,7 +23,7 @@ public class ProductEventProducer {
         	    RabbitMQConfig.ROUTING_KEY,
         	    event,
         	    message -> {
-        	        message.getMessageProperties().setHeader("__TypeId__", null); // 🔥 ESTE ES EL FIX REAL
+        	        message.getMessageProperties().setHeader("__TypeId__", null); 
         	        return message;
         	    }
         	);

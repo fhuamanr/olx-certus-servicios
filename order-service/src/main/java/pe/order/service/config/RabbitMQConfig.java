@@ -10,26 +10,52 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE = "order.created.queue";
-    public static final String EXCHANGE = "order.exchange";
-    public static final String ROUTING_KEY = "order.created";
+    // Eventos que order-service PUBLICA
+    public static final String ORDER_CREATED_QUEUE = "order.created.queue";
+    public static final String ORDER_EXCHANGE = "order.exchange";
+    public static final String ORDER_CREATED_ROUTING_KEY = "order.created";
 
+    // Eventos que order-service CONSUME desde product-service
+    public static final String PRODUCT_CREATED_QUEUE = "product.created.queue";
+    public static final String PRODUCT_EXCHANGE = "product.exchange";
+    public static final String PRODUCT_CREATED_ROUTING_KEY = "product.created";
+
+    // Cola propia de order-service
     @Bean
-    public Queue queue() {
-        return QueueBuilder.durable(QUEUE).build();
+    public Queue orderCreatedQueue() {
+        return QueueBuilder.durable(ORDER_CREATED_QUEUE).build();
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return ExchangeBuilder.topicExchange(EXCHANGE).durable(true).build();
+    public TopicExchange orderExchange() {
+        return ExchangeBuilder.topicExchange(ORDER_EXCHANGE).durable(true).build();
     }
 
     @Bean
-    public Binding binding() {
+    public Binding orderCreatedBinding() {
         return BindingBuilder
-                .bind(queue())
-                .to(exchange())
-                .with(ROUTING_KEY);
+                .bind(orderCreatedQueue())
+                .to(orderExchange())
+                .with(ORDER_CREATED_ROUTING_KEY);
+    }
+
+    // Cola para consumir eventos de product-service
+    @Bean
+    public Queue productCreatedQueue() {
+        return QueueBuilder.durable(PRODUCT_CREATED_QUEUE).build();
+    }
+
+    @Bean
+    public TopicExchange productExchange() {
+        return ExchangeBuilder.topicExchange(PRODUCT_EXCHANGE).durable(true).build();
+    }
+
+    @Bean
+    public Binding productCreatedBinding() {
+        return BindingBuilder
+                .bind(productCreatedQueue())
+                .to(productExchange())
+                .with(PRODUCT_CREATED_ROUTING_KEY);
     }
 
     @Bean
