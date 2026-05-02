@@ -135,35 +135,22 @@ La estructura por capas dentro de cada microservicio es:
 
 El diagrama muestra la arquitectura basada en microservicios donde el cliente se comunica con el sistema a través del Frontend Service. Los servicios acceden a sus respectivas bases de datos MySQL mediante JPA/Hibernate, y se comunican entre sí de forma asíncrona usando RabbitMQ.
 
-```
-┌─────────────┐     ┌─────────────────────────────────────────────┐
-│   Usuario   │────▶│            Frontend Service                  │
-└─────────────┘     │         (Spring Boot + Thymeleaf)            │
-                     │                (Puerto 8082)                │
-                     └───────────┬──────────────────┬──────────────┘
-                                 │                  │
-                                 ▼                  ▼
-                    ┌──────────────────────┐  ┌─────────────────────┐
-                    │   Product Service    │  │    User Service     │
-                    │   (Puerto 8080)      │  │   (Puerto 8081)     │
-                    └──────────┬───────────┘  └──────────┬──────────┘
-                               │                         │
-                               ▼                         ▼
-                    ┌──────────────────────┐  ┌─────────────────────┐
-                    │    order Service     │  │      RabbitMQ       │
-                    │   (Puerto 8083)      │  │   (Mensajería)      │
-                    └──────────┬───────────┘  └─────────────────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │      MySQL 8         │
-                    │  productdb / userdb  │
-                    │     / orderdb        │
-                    └──────────────────────┘
+```mermaid
+graph TD
+    Usuario["👤 Usuario"] --> Frontend["Frontend Service<br/>(Spring Boot + Thymeleaf)<br/>Puerto 8082"]
+    Frontend --> Product["Product Service<br/>Puerto 8080"]
+    Frontend --> User["User Service<br/>Puerto 8081"]
+    Frontend --> Order["Order Service<br/>Puerto 8083"]
+    Product --> ProductDB[("MySQL productdb<br/>3307")]
+    User --> UserDB[("MySQL userdb<br/>3308")]
+    Order --> OrderDB[("MySQL orderdb<br/>3309")]
+    Product -->|"ProductCreatedEvent"| RabbitMQ["RabbitMQ<br/>Mensajería"]
+    User -->|"UserCreatedEvent"| RabbitMQ
+    Order -->|"OrderCreatedEvent"| RabbitMQ
 ```
 
 **Nota:** Cada microservicio tiene su propia base de datos MySQL:
-- Product Service → `productdb` (contendor `mysql-product`, puerto 3307)
+- Product Service → `productdb` (contenedor `mysql-product`, puerto 3307)
 - User Service → `userdb` (contenedor `mysql-user`, puerto 3308)
 - Order Service → `orderdb` (contenedor `mysql-order`, puerto 3309)
 
@@ -723,95 +710,122 @@ Cada microservicio gestiona su propia base de datos MySQL independiente, siguien
 
 **Esquema de tablas:**
 
-```
-┌──────────────────────────┐
-│  productdb: products     │
-├──────────────────────────┤
-│ id (PK)                  │
-│ name                     │
-│ description              │
-│ price                    │
-│ user_id                  │
-│ category_id (FK) ────────┼──┐
-│ status                   │  │
-│ brand                    │  │
-│ condition_type           │  │
-│ slug                     │  │
-│ views                    │  │
-│ featured                 │  │
-│ created_at               │  │
-│ updated_at               │  │
-└──────────────────────────┘  │
-                              │
-┌──────────────────────────┐  │
-│  categories              │  │
-├──────────────────────────┤  │
-│ id (PK)                  │  │
-│ name                     │  │
-│ description              │  │
-└──────────────────────────┘  │
-                              │
-┌──────────────────────────┐  │
-│  product_images           │  │
-├──────────────────────────┤  │
-│ id (PK)                  │  │
-│ url                      │  │
-│ is_primary               │  │
-│ product_id (FK) ─────────┼──┘
-└──────────────────────────┘
+```mermaid
+erDiagram
+    products ||--o{ categories : "pertenece a"
+    products ||--o{ product_images : "tiene"
+    products ||--o{ product_attributes : "tiene"
+    products ||--|| product_locations : "ubicado en"
+    orders ||--o{ order_messages : "contiene"
 
-┌──────────────────────────┐  ┌──────────────────────────┐
-│  product_attributes       │  │  product_locations        │
-├──────────────────────────┤  ├──────────────────────────┤
-│ id (PK)                  │  │ id (PK)                  │
-│ attribute_name           │  │ country                  │
-│ attribute_value          │  │ city                     │
-│ product_id (FK) ─────────┼──┤ address                  │
-└──────────────────────────┘  │ latitude                 │
-                              │ longitude                │
-                              │ product_id (FK) ─────────┤
-                              └──────────────────────────┘
+    products {
+        Long id PK
+        string name
+        string description
+        double price
+        Long user_id
+        Long category_id FK
+        string status
+        string brand
+        string condition_type
+        string slug
+        int views
+        bool featured
+        datetime created_at
+        datetime updated_at
+    }
 
-┌──────────────────────┐      ┌────────────────────────────┐
-│  userdb: users       │      │  product_event_log          │
-├──────────────────────┤      ├────────────────────────────┤
-│ id (PK)              │      │ id (PK)                    │
-│ name                 │      │ product_id                 │
-│ email (UNIQUE)       │      │ user_id                    │
-│ password             │      │ name                       │
-│ phone                │      │ price                      │
-│ status               │      │ received_at                │
-│ role                 │      └────────────────────────────┘
-│ enabled              │
-│ created_at           │
-└──────────────────────┘
+    categories {
+        Long id PK
+        string name
+        string description
+    }
 
-┌──────────────────────┐      ┌────────────────────────────┐
-│  orderdb: orders     │      │  order_messages             │
-├──────────────────────┤      ├────────────────────────────┤
-│ id (PK)              │      │ id (PK)                    │
-│ product_id           │      │ order_id (FK) ────────────►│
-│ seller_id            │      │ sender_id                  │
-│ buyer_id             │      │ sender_role                │
-│ product_name         │      │ message                    │
-│ product_price        │      │ read_message               │
-│ status (ENUM)        │      │ created_at                 │
-│ payment_method       │      └────────────────────────────┘
-│ delivery_method      │
-│ meeting_point        │      ┌────────────────────────────┐
-│ created_at           │      │  product_snapshot           │
-│ updated_at           │      ├────────────────────────────┤
-└──────────────────────┘      │ product_id (PK)            │
-                              │ name                       │
-┌──────────────────────────┐  │ price                      │
-│  user_snapshot            │  │ seller_id                  │
-├──────────────────────────┤  │ available                  │
-│ user_id (PK)             │  └────────────────────────────┘
-│ name                     │
-│ email                    │
-│ phone                    │
-│ enabled                  │
-└──────────────────────────┘
+    product_images {
+        Long id PK
+        string url
+        bool is_primary
+        Long product_id FK
+    }
+
+    product_attributes {
+        Long id PK
+        string attribute_name
+        string attribute_value
+        Long product_id FK
+    }
+
+    product_locations {
+        Long id PK
+        string country
+        string city
+        string address
+        double latitude
+        double longitude
+        Long product_id FK
+    }
+
+    users {
+        Long id PK
+        string name
+        string email UK
+        string password
+        string phone
+        string status
+        string role
+        bool enabled
+        datetime created_at
+    }
+
+    product_event_log {
+        Long id PK
+        Long product_id
+        Long user_id
+        string name
+        double price
+        datetime received_at
+    }
+
+    orders {
+        Long id PK
+        Long product_id
+        Long seller_id
+        Long buyer_id
+        string product_name
+        double product_price
+        string status
+        string payment_method
+        string delivery_method
+        string meeting_point
+        datetime created_at
+        datetime updated_at
+    }
+
+    order_messages {
+        Long id PK
+        Long order_id FK
+        Long sender_id
+        string sender_role
+        string message
+        bool read_message
+        datetime created_at
+    }
+
+    product_snapshot {
+        Long product_id PK
+        string name
+        double price
+        Long seller_id
+        bool available
+    }
+
+    user_snapshot {
+        Long user_id PK
+        string name
+        string email
+        string phone
+        bool enabled
+    }
 ```
 
 # 10. ORQUESTACIÓN CON DOCKER COMPOSE
