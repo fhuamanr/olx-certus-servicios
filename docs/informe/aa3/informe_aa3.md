@@ -47,15 +47,15 @@
 
 [7.3 Relaciones entre Entidades](#73-relaciones-entre-entidades)
 
-[7.4 Repositorios con JpaRepository y CrudRepository](#74-repositorios-con-jparepository-y-crudrepository)
+[7.4 Repositorios con JpaRepository](#74-repositorios-con-jparepository)
 
 [8 MICROSERVICIOS IMPLEMENTADOS - AA3](#8-microservicios-implementados---aa3)
 
-[8.1 Product Service (Puerto 8080)](#81-product-service-puerto-8080)
+[8.1 Product Service](#81-product-service)
 
-[8.2 User Service (Puerto 8082)](#82-user-service-puerto-8082)
+[8.2 User Service](#82-user-service)
 
-[8.3 Order Service (Puerto 8081)](#83-order-service-puerto-8081)
+[8.3 Order Service](#83-order-service)
 
 [8.4 Frontend Service](#84-frontend-service)
 
@@ -63,9 +63,11 @@
 
 [9 BASE DE DATOS](#9-base-de-datos)
 
-[10 ESTRUCTURA DEL CÓDIGO](#10-estructura-del-código)
+[10 ORQUESTACIÓN CON DOCKER COMPOSE](#10-orquestación-con-docker-compose)
 
-[11 CONCLUSIONES](#11-conclusiones)
+[11 ESTRUCTURA DEL CÓDIGO](#11-estructura-del-código)
+
+[12 CONCLUSIONES](#12-conclusiones)
 
 ---
 
@@ -73,7 +75,7 @@
 
 Desarrollar una plataforma de ventas enfocada en emprendedores es la base de este proyecto, pensado como un marketplace similar a la sección de compras de Facebook o la app de OLX. En esta tercera fase (AA3), el proyecto se centra en la implementación robusta de la **capa de persistencia** utilizando **Spring Data JPA** como tecnología de acceso a datos.
 
-Si bien en la fase anterior (AA2) se definió la arquitectura de microservicios y se estableció la comunicación básica, en esta evidencia se profundiza en el mapeo objeto-relacional (ORM) mediante anotaciones JPA, la configuración de las fuentes de datos, la definición de repositorios y el establecimiento de relaciones entre entidades. Todo ello sobre una base de datos MySQL gestionada mediante contenedores Docker.
+Si bien en la fase anterior (AA2) se definió la arquitectura de microservicios, en esta evidencia se profundiza en el mapeo objeto-relacional (ORM) mediante anotaciones JPA, la configuración de las fuentes de datos, la definición de repositorios y el establecimiento de relaciones entre entidades. Todo ello sobre bases de datos MySQL independientes para cada microservicio, gestionadas mediante contenedores Docker.
 
 # 2. OBJETIVO
 
@@ -87,19 +89,19 @@ Implementar la capa de persistencia utilizando Spring Data JPA en los microservi
 
 * Configurar Spring Data JPA en cada microservicio con las propiedades de conexión a base de datos.
 * Definir las entidades JPA con anotaciones como `@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@Column`.
-* Establecer relaciones entre entidades utilizando anotaciones de mapeo (`@OneToMany`, `@ManyToOne`, etc.).
-* Implementar interfaces de repositorio extendiendo `JpaRepository` y `CrudRepository`.
-* Desarrollar métodos de consulta personalizados en los repositorios (métodos derivados y consultas JPQL).
+* Establecer relaciones entre entidades utilizando anotaciones de mapeo (`@OneToMany`, `@ManyToOne`, `@OneToOne`).
+* Implementar interfaces de repositorio extendiendo `JpaRepository`.
+* Desarrollar métodos de consulta personalizados en los repositorios (métodos derivados).
 
 # 3. ALCANCE
 
-Dentro de la presente evidencia se garantiza la correcta implementación de la capa de persistencia para el registro de usuarios, la creación de catálogos de productos y la gestión de pedidos, con el respaldo de Spring Data JPA y MySQL. Cada microservicio cuenta con su propia configuración de base de datos, entidades JPA y repositorios específicos.
+Dentro de la presente evidencia se garantiza la correcta implementación de la capa de persistencia para el registro de usuarios, la creación de catálogos de productos y la gestión de pedidos, con el respaldo de Spring Data JPA y MySQL. Cada microservicio cuenta con su propia base de datos MySQL independiente, entidades JPA y repositorios específicos.
 
 **No incluye:**
 
 * **Integración a pasarela de pago real:** No se contempla conectar servicios de pago en línea. En su lugar, se implementa una simulación lógica del pago.
 * **Gestión avanzada de envíos y logística:** El sistema no incluye integración con servicios de transporte ni seguimiento de pedidos en tiempo real.
-* **Autenticación con JWT avanzado:** La autenticación se maneja mediante lógica de validación de credenciales con BCrypt, sin implementar tokens JWT completos ni OAuth2.
+* **Autenticación con JWT avanzado:** La autenticación se maneja mediante validación de credenciales con BCrypt, sin implementar tokens JWT completos ni OAuth2.
 
 # 4. TECNOLOGÍAS UTILIZADAS
 
@@ -115,6 +117,7 @@ El desarrollo se apoya en el ecosistema Java con **Spring Boot 3.x** y **Spring 
 | RabbitMQ | 3.x | Broker de mensajería |
 | Docker Compose | 3.8 | Orquestación de contenedores |
 | Maven | 3.x | Gestión de dependencias |
+| Lombok | - | Reducción de código boilerplate |
 | BCrypt | - | Encriptación de contraseñas |
 
 # 5. ARQUITECTURA DEL PROYECTO
@@ -126,7 +129,7 @@ La estructura por capas dentro de cada microservicio es:
 * **Controller:** Maneja las solicitudes HTTP (REST API).
 * **Service:** Contiene la lógica de negocio.
 * **Repository:** Capa de acceso a datos mediante JPA (Spring Data).
-* **Entity (Model):** Clases que representan las tablas de la base de datos.
+* **Entity (Model):** Clases que representan las tablas de la base de datos, con anotaciones JPA.
 
 # 6. DIAGRAMA DE ARQUITECTURA
 
@@ -136,35 +139,33 @@ El diagrama muestra la arquitectura basada en microservicios donde el cliente se
 ┌─────────────┐     ┌─────────────────────────────────────────────┐
 │   Usuario   │────▶│            Frontend Service                  │
 └─────────────┘     │         (Spring Boot + Thymeleaf)            │
+                     │                (Puerto 8082)                │
                      └───────────┬──────────────────┬──────────────┘
                                  │                  │
                                  ▼                  ▼
-                    ┌────────────────────┐  ┌────────────────────┐
-                    │   API Gateway      │  │   Eureka Server    │
-                    │  (Spring Gateway)  │  │ (Service Discovery)│
-                    └────────┬───────────┘  └────────────────────┘
-                             │
-              ┌──────────────┼──────────────────┐
-              ▼              ▼                  ▼
-    ┌────────────────┐ ┌────────────┐ ┌────────────────┐
-    │  Product       │ │  User      │ │  Order         │
-    │  Service       │ │  Service   │ │  Service       │
-    │  (Puerto 8080) │ │  (8082)    │ │  (8081)        │
-    └───────┬────────┘ └─────┬──────┘ └───────┬────────┘
-            │                │                │
-            ▼                ▼                ▼
-     ┌────────────┐  ┌────────────┐  ┌────────────┐
-     │ MySQL      │  │ MySQL      │  │ MySQL      │
-     │ products_db│  │ users_db   │  │ orders_db  │
-     └────────────┘  └────────────┘  └────────────┘
-            │                │                │
-            └────────────────┼────────────────┘
-                             ▼
-                      ┌────────────┐
-                      │  RabbitMQ  │
-                      │   Broker   │
-                      └────────────┘
+                    ┌──────────────────────┐  ┌─────────────────────┐
+                    │   Product Service    │  │    User Service     │
+                    │   (Puerto 8080)      │  │   (Puerto 8081)     │
+                    └──────────┬───────────┘  └──────────┬──────────┘
+                               │                         │
+                               ▼                         ▼
+                    ┌──────────────────────┐  ┌─────────────────────┐
+                    │    order Service     │  │      RabbitMQ       │
+                    │   (Puerto 8083)      │  │   (Mensajería)      │
+                    └──────────┬───────────┘  └─────────────────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │      MySQL 8         │
+                    │  productdb / userdb  │
+                    │     / orderdb        │
+                    └──────────────────────┘
 ```
+
+**Nota:** Cada microservicio tiene su propia base de datos MySQL:
+- Product Service → `productdb` (contendor `mysql-product`, puerto 3307)
+- User Service → `userdb` (contenedor `mysql-user`, puerto 3308)
+- Order Service → `orderdb` (contenedor `mysql-order`, puerto 3309)
 
 # 7. CAPA DE PERSISTENCIA CON SPRING DATA JPA
 
@@ -172,35 +173,41 @@ El diagrama muestra la arquitectura basada en microservicios donde el cliente se
 
 Cada microservicio cuenta con su propia configuración de Spring Data JPA en el archivo `application.yml`, definiendo la conexión a su base de datos MySQL independiente.
 
-**Configuración de datasource y JPA (ejemplo de order-service):**
+**Ejemplo de configuración (product-service):**
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://mysql-order:3306/order_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://mysql:3306/productdb
     username: root
     password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
 ```
 
-**Parámetros clave de configuración:**
+**Configuración de cada microservicio:**
+
+| Microservicio | URL JDBC | Puerto expuesto | BD |
+|:---|---|:---:|:---|
+| Product Service | `jdbc:mysql://mysql:3306/productdb` | 8080 | `productdb` |
+| User Service | `jdbc:mysql://mysql-user:3306/userdb` | 8081 | `userdb` |
+| Order Service | `jdbc:mysql://mysql-order:3306/orderdb` | 8083 | `orderdb` |
+
+**Parámetros clave de configuración JPA:**
 
 | Propiedad | Valor | Descripción |
 |:---|---:|:---|
-| `spring.datasource.url` | `jdbc:mysql://...` | URL de conexión a MySQL. `createDatabaseIfNotExist=true` crea la BD automáticamente. |
-| `spring.datasource.driver-class-name` | `com.mysql.cj.jdbc.Driver` | Driver JDBC de MySQL 8. |
 | `spring.jpa.hibernate.ddl-auto` | `update` | Hibernate sincroniza el esquema con las entidades sin borrar datos existentes. |
 | `spring.jpa.show-sql` | `true` | Muestra las consultas SQL generadas en la consola (útil para depuración). |
-| `spring.jpa.properties.hibernate.dialect` | `org.hibernate.dialect.MySQL8Dialect` | Dialecto específico de MySQL 8 para Hibernate. |
 
 La estrategia `ddl-auto: update` permite que Hibernate genere y actualice automáticamente las tablas de la base de datos a partir de las entidades JPA, sin necesidad de scripts SQL manuales, facilitando el desarrollo iterativo.
 
@@ -213,7 +220,10 @@ Se utilizan anotaciones JPA estándar para el mapeo objeto-relacional. A continu
 | Anotación | Propósito |
 |:---|---|
 | `@Entity` | Marca la clase como una entidad JPA gestionada por Hibernate. |
-| `@Table(name = "users")` | Especifica el nombre de la tabla en la base de datos. Si se omite, se usa el nombre de la clase. |
+| `@Table(name = "users")` | Especifica el nombre de la tabla en la base de datos. |
+| `@Data` (Lombok) | Genera automáticamente getters, setters, toString, equals y hashCode. |
+| `@NoArgsConstructor` (Lombok) | Genera constructor sin argumentos (requerido por JPA). |
+| `@AllArgsConstructor` (Lombok) | Genera constructor con todos los argumentos. |
 
 ### 7.2.2 Anotaciones de nivel de campo
 
@@ -222,12 +232,68 @@ Se utilizan anotaciones JPA estándar para el mapeo objeto-relacional. A continu
 | `@Id` | Define la clave primaria de la entidad. |
 | `@GeneratedValue(strategy = GenerationType.IDENTITY)` | Indica que el valor de la clave primaria se genera automáticamente por la base de datos (auto-increment). |
 | `@Column(unique = true)` | Especifica que la columna debe tener valores únicos (restricción UNIQUE en la BD). |
-| `@Column(name = "order_id")` | Personaliza el nombre de la columna en la tabla. |
 | `@Enumerated(EnumType.STRING)` | Mapea un enum Java a una columna de tipo String en la BD. |
-| `@Lob` | Indica que el campo debe almacenarse como un objeto grande (TEXT, BLOB). |
-| `@CreationTimestamp` | Asigna automáticamente la fecha/hora de creación (no requiere código manual). |
+| `@ManyToOne` | Define una relación muchos-a-uno. |
+| `@OneToMany` | Define una relación uno-a-muchos. |
+| `@OneToOne` | Define una relación uno-a-uno. |
+| `@JoinColumn(name = "product_id")` | Especifica la columna foránea en la tabla. |
+| `@PrePersist` | Método callback ejecutado antes de persistir la entidad. |
+| `@PreUpdate` | Método callback ejecutado antes de actualizar la entidad. |
 
-### 7.2.3 Ejemplo de entidad: User (user-service)
+### 7.2.3 Entidad Product (product-service)
+
+```java
+@Entity
+@Table(name = "products")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String description;
+    private Double price;
+    private Long userId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    private String status;
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ProductImage> images;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ProductAttribute> attributes;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private ProductLocation location;
+
+    private String brand;
+    private String conditionType;   // NEW, USED, REFURBISHED
+    private String slug;
+    private Integer views;
+    private Boolean featured;
+    private LocalDateTime updatedAt;
+}
+```
+
+**Entidades relacionadas (product-service):**
+
+| Entidad | Tabla | Relación con Product |
+|:---|---|:---:|
+| `Category` | `categories` | `@ManyToOne` (varios productos → una categoría) |
+| `ProductImage` | `product_images` | `@OneToMany` (un producto → varias imágenes) |
+| `ProductAttribute` | `product_attributes` | `@OneToMany` (un producto → varios atributos) |
+| `ProductLocation` | `product_locations` | `@OneToOne` (un producto → una ubicación) |
+
+### 7.2.4 Entidad User (user-service)
 
 ```java
 @Entity
@@ -246,47 +312,25 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @NotBlank
-    private String password;
-
     private String phone;
     private String status;       // ACTIVE / INACTIVE / BLOCKED
+    private LocalDateTime createdAt;
+
+    @NotBlank
+    private String password;
     private String role;         // ADMIN, SELLER, CUSTOMER
     private Boolean enabled;
-    private LocalDateTime createdAt;
-
-    // Getters y Setters
 }
 ```
 
-### 7.2.4 Ejemplo de entidad: Product (product-service)
-
-```java
-@Entity
-@Table(name = "products")
-public class Product {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-    private String description;
-    private Double price;
-    private Long userId;
-    private Long categoryId;
-    private String status;
-    private LocalDateTime createdAt;
-
-    // Getters y Setters
-}
-```
-
-### 7.2.5 Ejemplo de entidad: Order (order-service)
+### 7.2.5 Entidad Order (order-service)
 
 ```java
 @Entity
 @Table(name = "orders")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
 
     @Id
@@ -297,260 +341,365 @@ public class Order {
     private Long sellerId;
     private Long buyerId;
 
+    // snapshot embebido del producto
+    private String productName;
+    private Double productPrice;
+
     @Enumerated(EnumType.STRING)
-    private OrderStatus status; // PENDING, PAID, COMPLETED, CANCELLED
+    private OrderStatus status;   // PENDING, ACCEPTED, REJECTED, IN_COORDINATION, COMPLETED, CANCELLED
+
+    // coordinación OLX
+    private String paymentMethod;
+    private String deliveryMethod;
+    private String meetingPoint;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderMessage> messages = new ArrayList<>();
+    @PrePersist
+    public void prePersist() {
+        this.status = (this.status == null) ? OrderStatus.PENDING : this.status;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 
-    // Getters y Setters
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
 ```
 
-### 7.2.6 Ejemplo de entidad: OrderMessage (order-service)
+### 7.2.6 Entidad OrderMessage (order-service)
 
 ```java
 @Entity
-@Table(name = "orders_messages")
+@Table(name = "order_messages")
+@Data
+@AllArgsConstructor
 public class OrderMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
 
-    private Long authorId;
-    private String content;
-    private LocalDateTime timestamp;
+    private Long senderId;
+    private String senderRole;    // BUYER / SELLER
+    private String message;
+    private Boolean readMessage;
+    private LocalDateTime createdAt;
 
-    // Getters y Setters
+    public OrderMessage() {
+        this.readMessage = false;
+        this.createdAt = LocalDateTime.now();
+    }
 }
 ```
 
-### 7.2.7 Ejemplo de entidad: ProductSnapshot (order-service)
+### 7.2.7 Entidad ProductSnapshot (order-service)
 
 ```java
 @Entity
-@Table(name = "product_snapshots")
+@Table(name = "product_snapshot")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductSnapshot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long productId;      // SIN @GeneratedValue, se asigna manualmente
 
-    private Long productId;
-    private Long sellerId;
     private String name;
     private Double price;
+    private Long sellerId;
     private Boolean available;
+}
+```
 
-    // Getters y Setters
+### 7.2.8 Entidad UserSnapshot (order-service)
+
+```java
+@Entity
+@Table(name = "user_snapshot")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserSnapshot {
+
+    @Id
+    private Long userId;         // SIN @GeneratedValue, se asigna manualmente
+
+    private String name;
+    private String email;
+    private String phone;
+    private Boolean enabled;
 }
 ```
 
 ## 7.3 Relaciones entre Entidades
 
-En el microservicio de órdenes se implementan relaciones JPA entre las entidades `Order` y `OrderMessage`:
+### 7.3.1 Relaciones en Product Service
 
-### Relación OneToMany / ManyToOne
+El microservicio de productos implementa las relaciones JPA más complejas del sistema:
 
-**Order → OrderMessage**: Una orden puede tener múltiples mensajes.
-
+**Product → Category (ManyToOne):**
 ```java
-// En Order.java
-@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-private List<OrderMessage> messages = new ArrayList<>();
+// En Product.java
+@ManyToOne(fetch = FetchType.EAGER)
+@JoinColumn(name = "category_id")
+private Category category;
 
-// En OrderMessage.java
-@ManyToOne(fetch = FetchType.LAZY)
+// En Category.java
+@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+private List<Product> products;
+```
+
+**Product → ProductImage (OneToMany):**
+```java
+// En Product.java
+@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+private List<ProductImage> images;
+
+// En ProductImage.java
+@ManyToOne
+@JoinColumn(name = "product_id")
+private Product product;
+```
+
+**Product → ProductAttribute (OneToMany):**
+```java
+// En Product.java
+@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+private List<ProductAttribute> attributes;
+
+// En ProductAttribute.java
+@ManyToOne
+@JoinColumn(name = "product_id")
+private Product product;
+```
+
+**Product → ProductLocation (OneToOne):**
+```java
+// En Product.java
+@OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+private ProductLocation location;
+
+// En ProductLocation.java
+@OneToOne
+@JoinColumn(name = "product_id")
+private Product product;
+```
+
+### 7.3.2 Relaciones en Order Service
+
+**Order → OrderMessage (OneToMany / ManyToOne):**
+```java
+// OrderMessage.java (lado propietario)
+@ManyToOne
 @JoinColumn(name = "order_id")
 private Order order;
 ```
 
-**Propósito de las anotaciones de relación:**
+Nota: La entidad `Order` no tiene una relación `@OneToMany` explícita hacia `OrderMessage`. La relación es solo desde el lado de `OrderMessage` mediante `@ManyToOne`.
 
-| Anotación | Significado |
-|:---|---|
-| `@OneToMany(mappedBy = "order")` | Indica que una orden puede tener muchos mensajes. El lado propietario de la relación es `OrderMessage`. |
-| `@ManyToOne(fetch = FetchType.LAZY)` | Indica que muchos mensajes pertenecen a una orden. La carga perezosa (`LAZY`) evita traer la orden completa al consultar un mensaje. |
-| `@JoinColumn(name = "order_id")` | Especifica la columna foránea en la tabla `orders_messages` que referencia a la tabla `orders`. |
-| `cascade = CascadeType.ALL` | Propaga todas las operaciones (persist, merge, remove) desde Order a OrderMessage. |
-| `orphanRemoval = true` | Elimina automáticamente los mensajes huérfanos cuando se remueven de la colección. |
+### 7.3.3 Resumen de relaciones JPA
 
-## 7.4 Repositorios con JpaRepository y CrudRepository
+| Microservicio | Entidad A | Entidad B | Tipo Relación | FK |
+|:---|:---|---|:---:|:---:|
+| Product | Product | Category | `@ManyToOne` / `@OneToMany` | `category_id` |
+| Product | Product | ProductImage | `@OneToMany` / `@ManyToOne` | `product_id` |
+| Product | Product | ProductAttribute | `@OneToMany` / `@ManyToOne` | `product_id` |
+| Product | Product | ProductLocation | `@OneToOne` / `@OneToOne` | `product_id` |
+| Order | OrderMessage | Order | `@ManyToOne` | `order_id` |
 
-Spring Data JPA proporciona interfaces que encapsulan las operaciones de acceso a datos, eliminando la necesidad de escribir código boilerplate. Cada microservicio implementa sus propios repositorios extendiendo `JpaRepository`.
+## 7.4 Repositorios con JpaRepository
 
-### 7.4.1 JpaRepository vs CrudRepository
+Spring Data JPA proporciona interfaces que encapsulan las operaciones de acceso a datos. Cada microservicio implementa sus propios repositorios extendiendo `JpaRepository`.
 
-| Característica | `CrudRepository` | `JpaRepository` |
-|:---|:---:|:---:|
-| Operaciones CRUD básicas | ✓ | ✓ |
-| Paginación y ordenación | - | ✓ |
-| Métodos de lote | - | ✓ |
-| Flush del contexto de persistencia | - | ✓ |
-| Extiende de | `Repository` | `CrudRepository` y `PagingAndSortingRepository` |
+### 7.4.1 Repositorios de Product Service
 
-En el proyecto se utiliza `JpaRepository` por su mayor flexibilidad y funcionalidades adicionales.
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
 
-### 7.4.2 Repositorios implementados
+    List<Product> findByUserId(Long userId);           // Productos por vendedor
 
-**UserRepository (user-service):**
+    List<Product> findByCategoryId(Long categoryId);   // Productos por categoría
+
+    List<Product> findByStatus(String status);         // Productos por estado
+}
+```
+
+### 7.4.2 Repositorios de User Service
 
 ```java
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);          // Búsqueda por email (login)
 
-    boolean existsByEmail(String email);
+    boolean existsByEmail(String email);               // Validación de unicidad
 }
 ```
 
-- `findByEmail`: Método derivado que genera automáticamente la consulta `SELECT * FROM users WHERE email = ?`. Retorna un `Optional` para manejar el caso de usuario no encontrado.
-- `existsByEmail`: Método derivado que genera `SELECT COUNT(*) FROM users WHERE email = ?`. Útil para validar unicidad antes de registrar un nuevo usuario.
+```java
+public interface ProductEventLogRepository extends JpaRepository<ProductEventLog, Long> {
+}
+```
 
-**OrderRepository (order-service):**
+### 7.4.3 Repositorios de Order Service
 
 ```java
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    List<Order> findByBuyerId(Long buyerId);
-
-    List<Order> findBySellerId(Long sellerId);
+    List<Order> findByBuyerId(Long buyerId);           // Órdenes como comprador
+    List<Order> findBySellerId(Long sellerId);         // Órdenes como vendedor
 }
 ```
-
-- `findByBuyerId`: Consulta todas las órdenes donde el usuario es comprador.
-- `findBySellerId`: Consulta todas las órdenes donde el usuario es vendedor.
-
-**OrderMessageRepository (order-service):**
 
 ```java
 public interface OrderMessageRepository extends JpaRepository<OrderMessage, Long> {
-
-    List<OrderMessage> findByOrderIdOrderByTimestampAsc(Long orderId);
+    List<OrderMessage> findByOrderId(Long orderId);    // Mensajes de una orden
 }
 ```
-
-- `findByOrderIdOrderByTimestampAsc`: Consulta los mensajes de una orden, ordenados por fecha de manera ascendente. Combina un método derivado con ordenación.
-
-**ProductSnapshotRepository (order-service):**
 
 ```java
 public interface ProductSnapshotRepository extends JpaRepository<ProductSnapshot, Long> {
 }
 ```
 
-### 7.4.3 Métodos derivados vs consultas personalizadas
-
-Spring Data JPA permite definir consultas sin escribir SQL mediante **métodos derivados** (query methods). El framework parsea el nombre del método y genera la consulta automáticamente.
-
-**Sintaxis de métodos derivados:**
-
+```java
+public interface UserSnapshotRepository extends JpaRepository<UserSnapshot, Long> {
+}
 ```
-findBy + [Propiedad] + [Criterio opcional] + [Ordenación opcional]
-```
+
+### 7.4.4 Métodos derivados (Query Methods)
+
+Spring Data JPA permite definir consultas sin escribir SQL mediante **métodos derivados**. El framework parsea el nombre del método y genera la consulta automáticamente.
+
+**Sintaxis:** `findBy` + `[Propiedad]` + `[Criterio]`
 
 | Método | Consulta SQL generada |
 |:---|---|
 | `findByEmail(String email)` | `SELECT * FROM users WHERE email = ?` |
 | `existsByEmail(String email)` | `SELECT COUNT(*) FROM users WHERE email = ?` |
 | `findByBuyerId(Long buyerId)` | `SELECT * FROM orders WHERE buyer_id = ?` |
-| `findByOrderIdOrderByTimestampAsc(Long orderId)` | `SELECT * FROM orders_messages WHERE order_id = ? ORDER BY timestamp ASC` |
+| `findBySellerId(Long sellerId)` | `SELECT * FROM orders WHERE seller_id = ?` |
+| `findByOrderId(Long orderId)` | `SELECT * FROM order_messages WHERE order_id = ?` |
+| `findByUserId(Long userId)` | `SELECT * FROM products WHERE user_id = ?` |
+| `findByCategoryId(Long categoryId)` | `SELECT * FROM products WHERE category_id = ?` |
+| `findByStatus(String status)` | `SELECT * FROM products WHERE status = ?` |
 
 # 8. MICROSERVICIOS IMPLEMENTADOS - AA3
 
-## 8.1 Product Service (Puerto 8080)
+## 8.1 Product Service
 
-**Entidad JPA persistente:**
+- **Puerto:** 8080 (contenedor: `product-service`)
+- **Base de datos:** `productdb` (contenedor: `mysql-product`, puerto: 3307)
+- **Repositorio:** `ProductRepository extends JpaRepository<Product, Long>`
+- **Endpoints REST:** CRUD de productos, búsqueda por usuario/categoría/estado
 
-| Tabla | Campos | Anotaciones JPA |
-|:---|:---|---|
-| `products` | id, name, description, price, userId, categoryId, status, createdAt | `@Entity`, `@Table`, `@Id`, `@GeneratedValue` |
+**Entidades JPA:**
 
-**Repositorio:**
-- `ProductRepository extends JpaRepository<Product, Long>`
-
-**Novedades en AA3:**
-- Mejora en la entidad Product con campos adicionales y validaciones.
-- Integración con RabbitMQ: publica eventos `ProductCreatedEvent` cuando se crea un producto.
-- Los eventos se consumen de forma asíncrona por User Service y Order Service.
-
-## 8.2 User Service (Puerto 8082)
-
-**Entidad JPA persistente:**
-
-| Tabla | Campos | Anotaciones JPA |
-|:---|:---|---|
-| `users` | id, name, email, password, phone, status, role, enabled, createdAt | `@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@Column(unique = true)` |
-
-**Repositorio:**
-- `UserRepository extends JpaRepository<User, Long>`
-- Métodos personalizados: `findByEmail`, `existsByEmail`
+| Tabla | Anotaciones | Relaciones |
+|:---|---|:---:|
+| `products` | `@Entity`, `@Id`, `@GeneratedValue`, `@ManyToOne`, `@OneToMany`, `@OneToOne` | Category, ProductImage, ProductAttribute, ProductLocation |
+| `categories` | `@Entity`, `@Id`, `@GeneratedValue`, `@OneToMany` | Product |
+| `product_images` | `@Entity`, `@Id`, `@GeneratedValue`, `@ManyToOne` | Product |
+| `product_attributes` | `@Entity`, `@Id`, `@GeneratedValue`, `@ManyToOne` | Product |
+| `product_locations` | `@Entity`, `@Id`, `@GeneratedValue`, `@OneToOne` | Product |
 
 **Novedades en AA3:**
-- Se agregó el campo `password` con encriptación BCrypt.
-- Se agregó el campo `role` (CUSTOMER, SELLER, ADMIN).
-- Se agregó el campo `enabled` para control de cuentas activas/inactivas.
-- Se implementó el endpoint `POST /users/login` para autenticación.
-- Se implementó el endpoint `POST /users` con DTO `RegisterRequest`.
-- Se consume eventos de producto mediante RabbitMQ (almacena log en `ProductEventLog`).
+- Implementación completa de relaciones JPA (OneToMany, ManyToOne, OneToOne) entre entidades.
+- Publicación de eventos `ProductCreatedEvent` en RabbitMQ al crear un producto.
+- Envío del evento con eliminación del header `__TypeId__` para compatibilidad entre servicios.
 
-## 8.3 Order Service (Puerto 8081)
+## 8.2 User Service
 
-**Entidades JPA persistentes:**
+- **Puerto:** 8081 (contenedor: `user-service`)
+- **Base de datos:** `userdb` (contenedor: `mysql-user`, puerto: 3308)
+- **Repositorios:** `UserRepository`, `ProductEventLogRepository` (ambos `extends JpaRepository`)
 
-| Tabla | Campos | Anotaciones JPA |
-|:---|:---|---|
-| `orders` | id, productId, sellerId, buyerId, status, createdAt | `@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@Enumerated`, `@OneToMany` |
-| `orders_messages` | id, orderId, authorId, content, timestamp | `@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@ManyToOne`, `@JoinColumn` |
-| `product_snapshots` | id, productId, sellerId, name, price, available | `@Entity`, `@Table`, `@Id`, `@GeneratedValue` |
+**Entidades JPA:**
 
-**Repositorios:**
-- `OrderRepository extends JpaRepository<Order, Long>`
-- `OrderMessageRepository extends JpaRepository<OrderMessage, Long>`
-- `ProductSnapshotRepository extends JpaRepository<ProductSnapshot, Long>`
+| Tabla | Campos | Anotaciones |
+|:---|---|:---:|
+| `users` | id, name, email, password, phone, status, role, enabled, createdAt | `@Entity`, `@Id`, `@GeneratedValue`, `@Column(unique = true)` |
+| `product_event_log` | id, productId, userId, name, price, receivedAt | `@Entity`, `@Id`, `@GeneratedValue` |
 
 **Novedades en AA3:**
-- Se agregó la entidad `ProductSnapshot` para almacenar una copia de los datos del producto al momento de crear una orden (patrón Snapshot).
-- Se implementó la relación `@OneToMany` / `@ManyToOne` entre Order y OrderMessage.
-- Se consume eventos de producto desde Product Service a través de RabbitMQ, almacenando automáticamente snapshots.
-- Se mejoró el manejo de estados de orden con `@Enumerated(EnumType.STRING)`.
+- Se agregaron los campos `password` (encriptado con BCrypt), `role` (CUSTOMER, SELLER, ADMIN), `enabled`.
+- Se implementó el endpoint `POST /users/login` para autenticación (valida email + password contra BCrypt).
+- Se implementó el endpoint `POST /users` con validación de email duplicado mediante `existsByEmail`.
+- Se agregó el DTO `RegisterRequest` para el registro de usuarios.
+- Se publica un evento `UserCreatedEvent` en RabbitMQ cuando se registra un nuevo usuario.
+- Se consume eventos de producto desde Product Service mediante `ProductEventConsumer`, almacenando logs en la tabla `product_event_log`.
+
+## 8.3 Order Service
+
+- **Puerto:** 8083 (contenedor: `order-service`)
+- **Base de datos:** `orderdb` (contenedor: `mysql-order`, puerto: 3309)
+- **Repositorios:** `OrderRepository`, `OrderMessageRepository`, `ProductSnapshotRepository`, `UserSnapshotRepository`
+
+**Entidades JPA:**
+
+| Tabla | Campos | Anotaciones clave |
+|:---|---|:---|
+| `orders` | id, productId, sellerId, buyerId, productName, productPrice, status (ENUM), paymentMethod, deliveryMethod, meetingPoint, createdAt, updatedAt | `@Entity`, `@Enumerated(EnumType.STRING)`, `@PrePersist`, `@PreUpdate` |
+| `order_messages` | id, orderId (FK), senderId, senderRole, message, readMessage, createdAt | `@Entity`, `@ManyToOne`, `@JoinColumn` |
+| `product_snapshot` | productId (PK manual), name, price, sellerId, available | `@Entity`, `@Id` (sin `@GeneratedValue`) |
+| `user_snapshot` | userId (PK manual), name, email, phone, enabled | `@Entity`, `@Id` (sin `@GeneratedValue`) |
+
+**Novedades en AA3:**
+- Se implementó el **patrón Snapshot** con las entidades `ProductSnapshot` y `UserSnapshot`, que almacenan copias inmutables de datos de producto y usuario al momento de crear una orden.
+- Se implementó la relación `@ManyToOne` entre `OrderMessage` y `Order`.
+- Se consume eventos de producto desde Product Service, almacenando snapshots automáticamente.
+- Se consume eventos de usuario desde User Service (cuando se registra un usuario, se crea un `UserSnapshot`).
+- Manejo de estados de orden mediante `enum OrderStatus`: PENDING, ACCEPTED, REJECTED, IN_COORDINATION, COMPLETED, CANCELLED.
+- Callbacks `@PrePersist` y `@PreUpdate` para manejo automático de fechas `createdAt` y `updatedAt`.
 
 ## 8.4 Frontend Service
 
+- **Puerto:** 8082 (contenedor: `frontend-service`)
+- **Tecnología:** Spring Boot + Thymeleaf + HTML5 + CSS3 + JavaScript
+
 **Novedades en AA3:**
-- Integración completa con el login: formulario de inicio de sesión que consume el endpoint `POST /users/login` de User Service.
+- Integración completa con login: formulario que consume `POST /users/login` de User Service.
 - Registro de usuarios con encriptación de contraseña.
 - Vista de detalle de producto con información del vendedor y ubicación.
 - Flujo de solicitud de pedido ("Me interesa") que crea una orden.
-- Diseño UI/UX renovado con estilo tipo OLX.
+- Diseño UI/UX renovado con estilo tipo OLX (border-radius, sombras, colores personalizados).
 
 ## 8.5 Comunicación Asíncrona con RabbitMQ
 
 Los microservicios se comunican de forma asíncrona a través de RabbitMQ, lo que permite el desacoplamiento y la tolerancia a fallos.
 
-**Configuración de colas y exchanges:**
+**Configuración de exchanges, colas y routing keys:**
 
-| Microservicio | Evento | Exchange | Routing Key | Cola |
-|:---|:---|---:|:---:|:---:|
-| Product Service | Product Created | `product.exchange` | `product.created` | - |
-| User Service (consume) | Product Created | `product.exchange` | `product.created` | `product.created.user.queue` |
-| Order Service (consume) | Product Created | `product.exchange` | `product.created` | `product.created.order.queue` |
-| Order Service | Order Created | `order.exchange` | `order.created` | `order.created.queue` |
+| Microservicio origen | Evento | Exchange | Routing Key | Cola destino | Microservicio destino |
+|:---|---|:---:|:---:|:---|:---:|
+| Product Service | ProductCreated | `product.exchange` | `product.created` | `product.created.queue` | Product Service (propia) |
+| Product Service | ProductCreated | `product.exchange` | `product.created` | `product.created.user.queue` | User Service |
+| Product Service | ProductCreated | `product.exchange` | `product.created` | `product.created.order.queue` | Order Service |
+| User Service | UserCreated | `user.exchange` | `user.created` | `user.created.queue` | User Service (propia) |
+| User Service | UserCreated | `user.exchange` | `user.created` | `user.created.queue` | Order Service |
+| Order Service | OrderCreated | `order.exchange` | `order.created` | `order.created.queue` | Order Service (propia) |
 
-**Ejemplo de flujo de eventos:**
+**Flujo de ejemplo: creación de un producto**
 
-1. Un vendedor crea un producto en Product Service.
-2. Product Service guarda el producto en su base de datos MySQL.
-3. Product Service publica un `ProductCreatedEvent` a través de RabbitMQ.
-4. User Service consume el evento y registra un log del producto creado.
-5. Order Service consume el evento y guarda un `ProductSnapshot` con los datos del producto, garantizando que los datos queden inmutables para futuras órdenes.
+1. Un vendedor crea un producto en Product Service (POST `/products`).
+2. Product Service guarda el producto en su BD `productdb`.
+3. Product Service publica un `ProductCreatedEvent` en `product.exchange` con routing key `product.created`.
+4. **User Service** consume el evento: crea un registro en `product_event_log` con los datos del producto.
+5. **Order Service** consume el evento: crea un `ProductSnapshot` en `orderdb` con los datos del producto.
+
+**Flujo de ejemplo: registro de un usuario**
+
+1. Un usuario se registra en User Service (POST `/users`).
+2. User Service guarda el usuario en su BD `userdb`.
+3. User Service publica un `UserCreatedEvent` en `user.exchange` con routing key `user.created`.
+4. **Order Service** consume el evento: crea un `UserSnapshot` en `orderdb` con los datos del usuario.
 
 # 9. BASE DE DATOS
 
@@ -560,82 +709,164 @@ Cada microservicio gestiona su propia base de datos MySQL independiente, siguien
 
 | Base de Datos | Tabla | Microservicio |
 |:---|:---|:---:|
-| `product_db` | `products` | Product Service |
-| `user_db` | `users` | User Service |
-| `order_db` | `orders` | Order Service |
-| `order_db` | `orders_messages` | Order Service |
-| `order_db` | `product_snapshots` | Order Service |
+| `productdb` | `products` | Product Service |
+| `productdb` | `categories` | Product Service |
+| `productdb` | `product_images` | Product Service |
+| `productdb` | `product_attributes` | Product Service |
+| `productdb` | `product_locations` | Product Service |
+| `userdb` | `users` | User Service |
+| `userdb` | `product_event_log` | User Service |
+| `orderdb` | `orders` | Order Service |
+| `orderdb` | `order_messages` | Order Service |
+| `orderdb` | `product_snapshot` | Order Service |
+| `orderdb` | `user_snapshot` | Order Service |
 
 **Esquema de tablas:**
 
 ```
-┌──────────────────────┐      ┌──────────────────────┐
-│       products       │      │        users         │
-├──────────────────────┤      ├──────────────────────┤
-│ id (PK)              │      │ id (PK)              │
-│ name                 │      │ name                 │
-│ description          │      │ email (UNIQUE)       │
-│ price                │      │ password             │
-│ user_id              │      │ phone                │
-│ category_id          │      │ status               │
-│ status               │      │ role                 │
-│ created_at           │      │ enabled              │
-└──────────────────────┘      │ created_at           │
-                              └──────────────────────┘
+┌──────────────────────────┐
+│  productdb: products     │
+├──────────────────────────┤
+│ id (PK)                  │
+│ name                     │
+│ description              │
+│ price                    │
+│ user_id                  │
+│ category_id (FK) ────────┼──┐
+│ status                   │  │
+│ brand                    │  │
+│ condition_type           │  │
+│ slug                     │  │
+│ views                    │  │
+│ featured                 │  │
+│ created_at               │  │
+│ updated_at               │  │
+└──────────────────────────┘  │
+                              │
+┌──────────────────────────┐  │
+│  categories              │  │
+├──────────────────────────┤  │
+│ id (PK)                  │  │
+│ name                     │  │
+│ description              │  │
+└──────────────────────────┘  │
+                              │
+┌──────────────────────────┐  │
+│  product_images           │  │
+├──────────────────────────┤  │
+│ id (PK)                  │  │
+│ url                      │  │
+│ is_primary               │  │
+│ product_id (FK) ─────────┼──┘
+└──────────────────────────┘
 
-┌──────────────────────┐      ┌──────────────────────────┐
-│       orders         │      │     orders_messages      │
-├──────────────────────┤      ├──────────────────────────┤
-│ id (PK)              │      │ id (PK)                  │
-│ product_id           │◄─┐   │ order_id (FK) ──────────►│ orders.id
-│ seller_id            │  │   │ author_id                 │
-│ buyer_id             │  │   │ content                   │
-│ status (ENUM)        │  │   │ timestamp                 │
-│ created_at           │  │   └──────────────────────────┘
-└──────────────────────┘  │
-                          │   ┌──────────────────────────┐
-                          │   │    product_snapshots     │
-                          │   ├──────────────────────────┤
-                          └───│ product_id               │
-                              │ seller_id                │
-                              │ name                     │
-                              │ price                    │
-                              │ available                │
+┌──────────────────────────┐  ┌──────────────────────────┐
+│  product_attributes       │  │  product_locations        │
+├──────────────────────────┤  ├──────────────────────────┤
+│ id (PK)                  │  │ id (PK)                  │
+│ attribute_name           │  │ country                  │
+│ attribute_value          │  │ city                     │
+│ product_id (FK) ─────────┼──┤ address                  │
+└──────────────────────────┘  │ latitude                 │
+                              │ longitude                │
+                              │ product_id (FK) ─────────┤
                               └──────────────────────────┘
+
+┌──────────────────────┐      ┌────────────────────────────┐
+│  userdb: users       │      │  product_event_log          │
+├──────────────────────┤      ├────────────────────────────┤
+│ id (PK)              │      │ id (PK)                    │
+│ name                 │      │ product_id                 │
+│ email (UNIQUE)       │      │ user_id                    │
+│ password             │      │ name                       │
+│ phone                │      │ price                      │
+│ status               │      │ received_at                │
+│ role                 │      └────────────────────────────┘
+│ enabled              │
+│ created_at           │
+└──────────────────────┘
+
+┌──────────────────────┐      ┌────────────────────────────┐
+│  orderdb: orders     │      │  order_messages             │
+├──────────────────────┤      ├────────────────────────────┤
+│ id (PK)              │      │ id (PK)                    │
+│ product_id           │      │ order_id (FK) ────────────►│
+│ seller_id            │      │ sender_id                  │
+│ buyer_id             │      │ sender_role                │
+│ product_name         │      │ message                    │
+│ product_price        │      │ read_message               │
+│ status (ENUM)        │      │ created_at                 │
+│ payment_method       │      └────────────────────────────┘
+│ delivery_method      │
+│ meeting_point        │      ┌────────────────────────────┐
+│ created_at           │      │  product_snapshot           │
+│ updated_at           │      ├────────────────────────────┤
+└──────────────────────┘      │ product_id (PK)            │
+                              │ name                       │
+┌──────────────────────────┐  │ price                      │
+│  user_snapshot            │  │ seller_id                  │
+├──────────────────────────┤  │ available                  │
+│ user_id (PK)             │  └────────────────────────────┘
+│ name                     │
+│ email                    │
+│ phone                    │
+│ enabled                  │
+└──────────────────────────┘
 ```
 
-# 10. ESTRUCTURA DEL CÓDIGO
+# 10. ORQUESTACIÓN CON DOCKER COMPOSE
+
+Se utilizó Docker Compose para orquestar todos los componentes del sistema, permitiendo un despliegue consistente y replicable.
+
+**Servicios definidos en docker-compose.yml:**
+
+| Servicio | Contenedor | Puerto | Depende de |
+|:---|---|:---:|:---|
+| `mysql` | `mysql-product` | 3307:3306 | - |
+| `mysql-user` | `mysql-user` | 3308:3306 | - |
+| `mysql-order` | `mysql-order` | 3309:3306 | - |
+| `rabbitmq` | `rabbitmq` | 5672, 15672 | - |
+| `product-service` | `product-service` | 8080:8080 | mysql, rabbitmq |
+| `user-service` | `user-service` | 8081:8080 | mysql-user, rabbitmq |
+| `order-service` | `order-service` | 8083:8080 | mysql-order, rabbitmq |
+| `frontend-service` | `frontend-service` | 8082:8080 | product, user, order |
+
+# 11. ESTRUCTURA DEL CÓDIGO
 
 El proyecto está organizado siguiendo una arquitectura de microservicios, donde cada componente se desarrolla y despliega de forma independiente.
 
 **Link Repositorio Github:** [https://github.com/fhuamanr/olx-certus-servicios](https://github.com/fhuamanr/olx-certus-servicios)
 
-**Estructura de cada microservicio (patrón en capas):**
+**Estructura de carpetas de cada microservicio:**
 
 ```
 order-service/
 ├── src/main/java/pe/order/service/
 │   ├── config/
-│   │   └── RabbitMQConfig.java           # Configuración JMS/RabbitMQ
+│   │   └── RabbitMQConfig.java           # Configuración RabbitMQ (exchanges, colas, bindings)
 │   ├── consumer/
-│   │   └── ProductEventConsumer.java     # Consume eventos de producto
+│   │   └── ProductEventConsumer.java     # Consume eventos de Product Service
 │   ├── controller/
 │   │   └── OrderController.java          # Controlador REST
 │   ├── dto/
-│   │   └── MessageRequest.java           # DTO para mensajes
+│   │   └── MessageRequest.java           # DTO para envío de mensajes
 │   ├── entity/
-│   │   ├── Order.java                    # Entidad JPA
-│   │   ├── OrderMessage.java             # Entidad JPA
-│   │   └── ProductSnapshot.java          # Entidad JPA
+│   │   ├── Order.java                    # Entidad JPA (tabla: orders)
+│   │   ├── OrderMessage.java             # Entidad JPA (tabla: order_messages)
+│   │   ├── ProductSnapshot.java          # Entidad JPA (tabla: product_snapshot)
+│   │   └── UserSnapshot.java             # Entidad JPA (tabla: user_snapshot)
+│   ├── enums/
+│   │   └── OrderStatus.java              # Enum: PENDING, ACCEPTED, REJECTED, etc.
 │   ├── event/
 │   │   ├── OrderCreatedEvent.java        # Evento de orden creada
-│   │   └── ProductCreatedEvent.java      # Evento de producto creado
+│   │   └── ProductCreatedEvent.java      # Evento de producto creado (para deserializar)
 │   ├── producer/
-│   │   └── OrderEventProducer.java       # Publica eventos en RabbitMQ
+│   │   └── OrderEventProducer.java       # Publica eventos OrderCreated en RabbitMQ
 │   ├── repository/
-│   │   ├── OrderRepository.java          # Repositorio JPA
-│   │   ├── OrderMessageRepository.java   # Repositorio JPA
-│   │   └── ProductSnapshotRepository.java # Repositorio JPA
+│   │   ├── OrderRepository.java          # JpaRepository<Order, Long>
+│   │   ├── OrderMessageRepository.java   # JpaRepository<OrderMessage, Long>
+│   │   ├── ProductSnapshotRepository.java # JpaRepository<ProductSnapshot, Long>
+│   │   └── UserSnapshotRepository.java   # JpaRepository<UserSnapshot, Long>
 │   └── service/
 │       └── OrderService.java             # Lógica de negocio
 ├── src/main/resources/
@@ -647,8 +878,7 @@ order-service/
 user-service/
 ├── src/main/java/pe/user/service/
 │   ├── config/
-│   │   ├── RabbitMQConfig.java           # Configuración RabbitMQ
-│   │   └── OpenApiConfig.java            # Configuración Swagger
+│   │   └── RabbitMQConfig.java           # Configuración RabbitMQ (colas, exchanges)
 │   ├── consumer/
 │   │   └── ProductEventConsumer.java     # Consume eventos de producto
 │   ├── controller/
@@ -656,14 +886,21 @@ user-service/
 │   ├── dto/
 │   │   └── RegisterRequest.java          # DTO para registro
 │   ├── entity/
-│   │   ├── User.java                     # Entidad JPA
 │   │   ├── LoginRequest.java             # DTO para login
 │   │   ├── LoginResponse.java            # DTO respuesta login
-│   │   └── PasswordConfig.java           # Configuración BCrypt
+│   │   ├── PasswordConfig.java           # Configuración BCrypt
+│   │   ├── ProductEventLog.java          # Entidad JPA (tabla: product_event_log)
+│   │   └── User.java                     # Entidad JPA (tabla: users)
+│   ├── event/
+│   │   ├── ProductCreatedEvent.java      # Evento de producto creado (deserialización)
+│   │   └── UserCreatedEvent.java         # Evento de usuario creado
 │   ├── exception/
 │   │   └── GlobalExceptionHandler.java   # Manejador global de errores
+│   ├── producer/
+│   │   └── UserEventProducer.java        # Publica eventos UserCreated en RabbitMQ
 │   ├── repository/
-│   │   └── UserRepository.java           # Repositorio JPA
+│   │   ├── ProductEventLogRepository.java # JpaRepository<ProductEventLog, Long>
+│   │   └── UserRepository.java           # JpaRepository<User, Long>
 │   └── service/
 │       └── UserService.java              # Lógica de negocio
 ├── src/main/resources/
@@ -675,25 +912,29 @@ user-service/
 product-service/
 ├── src/main/java/pe/product/service/
 │   ├── config/
-│   │   └── RabbitMQConfig.java           # Configuración RabbitMQ
+│   │   └── RabbitMQConfig.java            # Configuración RabbitMQ
 │   ├── controller/
-│   │   └── ProductController.java        # Controlador REST
+│   │   └── ProductController.java         # Controlador REST
 │   ├── entity/
-│   │   └── Product.java                  # Entidad JPA
+│   │   ├── Category.java                  # Entidad JPA (tabla: categories)
+│   │   ├── Product.java                   # Entidad JPA (tabla: products)
+│   │   ├── ProductAttribute.java          # Entidad JPA (tabla: product_attributes)
+│   │   ├── ProductImage.java              # Entidad JPA (tabla: product_images)
+│   │   └── ProductLocation.java           # Entidad JPA (tabla: product_locations)
 │   ├── event/
-│   │   └── ProductCreatedEvent.java      # Evento de producto creado
+│   │   └── ProductCreatedEvent.java       # Evento de producto creado
 │   ├── producer/
-│   │   └── ProductEventProducer.java     # Publica eventos en RabbitMQ
+│   │   └── ProductEventProducer.java      # Publica eventos ProductCreated
 │   ├── repository/
-│   │   └── ProductRepository.java        # Repositorio JPA
+│   │   └── ProductRepository.java         # JpaRepository<Product, Long>
 │   └── service/
-│       └── ProductService.java           # Lógica de negocio
+│       └── ProductService.java            # Lógica de negocio
 ├── src/main/resources/
-│   └── application.yml                   # Configuración JPA, BD, RabbitMQ
+│   └── application.yml                    # Configuración JPA, BD, RabbitMQ
 └── Dockerfile
 ```
 
-# 11. CONCLUSIONES
+# 12. CONCLUSIONES
 
 Como equipo, concluimos que la implementación de la capa de persistencia con **Spring Data JPA** ha sido exitosa y cumple con los objetivos planteados para esta evidencia AA3.
 
@@ -701,18 +942,20 @@ Como equipo, concluimos que la implementación de la capa de persistencia con **
 
 1. **Configuración centralizada:** Se configuró Spring Data JPA en cada microservicio mediante archivos `application.yml`, utilizando `ddl-auto: update` para la generación automática de tablas a partir de las entidades, lo que agilizó el desarrollo y eliminó la necesidad de scripts SQL manuales.
 
-2. **Mapeo objeto-relacional completo:** Se utilizaron anotaciones JPA estándar (`@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@Column`, `@Enumerated`, `@CreationTimestamp`) para mapear todas las entidades del sistema a sus correspondientes tablas en MySQL.
+2. **Mapeo objeto-relacional completo:** Se utilizaron anotaciones JPA estándar (`@Entity`, `@Table`, `@Id`, `@GeneratedValue`, `@Column`, `@Enumerated`, `@PrePersist`, `@PreUpdate`) para mapear todas las entidades del sistema a sus correspondientes tablas en MySQL.
 
-3. **Relaciones entre entidades:** Se implementaron relaciones `@OneToMany` y `@ManyToOne` entre las entidades Order y OrderMessage, utilizando estrategias de carga perezosa (`FetchType.LAZY`) y cascada de operaciones (`CascadeType.ALL`), garantizando la integridad referencial.
+3. **Relaciones entre entidades:** Se implementaron relaciones `@OneToMany`, `@ManyToOne` y `@OneToOne` entre las entidades en Product Service (Product → Category, Product → ProductImage, Product → ProductAttribute, Product → ProductLocation) y Order Service (OrderMessage → Order), utilizando estrategias de cascada (`CascadeType.ALL`) y eliminación de huérfanos (`orphanRemoval = true`).
 
-4. **Repositorios especializados:** Se implementaron interfaces de repositorio extendiendo `JpaRepository`, con métodos de consulta derivados como `findByEmail`, `existsByEmail`, `findByBuyerId` y `findByOrderIdOrderByTimestampAsc`, demostrando la potencia de los **query methods** de Spring Data JPA.
+4. **Repositorios especializados:** Se implementaron 8 interfaces de repositorio extendiendo `JpaRepository`, con métodos de consulta derivados como `findByEmail`, `existsByEmail`, `findByBuyerId`, `findBySellerId`, `findByOrderId`, `findByUserId`, `findByCategoryId` y `findByStatus`, demostrando la potencia de los **query methods** de Spring Data JPA.
 
-5. **Aislamiento de datos:** Cada microservicio cuenta con su propia base de datos MySQL independiente, cumpliendo con el principio de aislamiento de datos en la arquitectura de microservicios.
+5. **Patrón Snapshot:** Se implementaron las entidades `ProductSnapshot` y `UserSnapshot` con claves primarias manuales (sin `@GeneratedValue`), que almacenan copias inmutables de datos al momento de crear una orden, evitando inconsistencias si los datos originales se modifican posteriormente.
+
+6. **Aislamiento de datos:** Cada microservicio cuenta con su propia base de datos MySQL independiente (`productdb`, `userdb`, `orderdb`), cumpliendo con el principio de aislamiento de datos en la arquitectura de microservicios.
 
 **Sobre la arquitectura general:**
 
-- La integración con **RabbitMQ** permitió que los eventos de creación de productos sean consumidos de forma asíncrona por User Service y Order Service, demostrando comunicación entre microservicios sin acoplamiento directo.
-- El **patrón Snapshot** implementado en Order Service (`ProductSnapshot`) garantiza que los datos del producto queden inmutables al momento de crear una orden, evitando inconsistencias si el producto se modifica posteriormente.
+- La integración con **RabbitMQ** permite la comunicación asíncrona entre servicios, con 3 exchanges (`product.exchange`, `user.exchange`, `order.exchange`) que distribuyen eventos a colas específicas.
+- Se implementó el envío de eventos desde Product Service (`ProductCreatedEvent`), User Service (`UserCreatedEvent`) y Order Service (`OrderCreatedEvent`).
 - La autenticación de usuarios se fortaleció con encriptación **BCrypt** para contraseñas y roles de usuario (CUSTOMER, SELLER, ADMIN).
 - Las UI de frontend se integraron completamente con los microservicios, proporcionando una experiencia de usuario completa: registro, login, creación de productos, detalle de productos y solicitud de pedidos.
 
