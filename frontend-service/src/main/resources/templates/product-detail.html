@@ -4,38 +4,97 @@
 
 <div th:fragment="content">
 
-    <div class="row">
+    <div class="row g-4">
 
-        <!-- Imagen -->
-        <div class="col-md-6">
-            <img th:src="${#lists.isEmpty(product.images) ? 'https://via.placeholder.com/500x400' : product.images[0].url}"
-                 class="img-fluid rounded">
+        <div class="col-lg-7">
+            <div class="bg-white rounded-4 shadow-sm p-4">
+                <img th:src="${product.images != null and !#lists.isEmpty(product.images) 
+                               ? product.images[0].url 
+                               : 'https://via.placeholder.com/800x600?text=Producto'}"
+                     class="img-fluid rounded-4 w-100"
+                     style="max-height: 520px; object-fit: cover;"
+                     alt="Producto">
+
+                <div class="row g-3 mt-3" th:if="${product.images != null and !#lists.isEmpty(product.images)}">
+                    <div class="col-3" th:each="img : ${product.images}">
+                        <img th:src="${img.url}"
+                             class="img-fluid rounded-3 border"
+                             style="height: 90px; width: 100%; object-fit: cover;"
+                             alt="Imagen producto">
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Info -->
-        <div class="col-md-6">
+        <div class="col-lg-5">
+            <div class="bg-white rounded-4 shadow-sm p-4">
 
-            <h3 th:text="${product.name}"></h3>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-success"
+                          th:text="${product.status != null ? product.status : 'ACTIVE'}">
+                    </span>
 
-            <span class="badge bg-secondary"
-                  th:text="${product.category.name}">
-            </span>
+                    <span class="badge bg-light text-dark"
+                          th:text="${product.category != null ? product.category.name : 'Sin categoría'}">
+                    </span>
+                </div>
 
-            <h2 class="text-success mt-3"
-                th:text="'S/ ' + ${product.price}">
-            </h2>
+                <h1 class="fw-bold mb-2" th:text="${product.name}">
+                    Producto
+                </h1>
 
-            <p class="mt-3"
-               th:text="${product.description}">
-            </p>
+                <p class="text-muted mb-3" th:text="${product.description}">
+                    Descripción del producto
+                </p>
 
-            <button class="btn btn-warning mt-3 w-100">
-                Contactar vendedor
-            </button>
+                <h2 class="fw-bold mb-4" style="color: var(--primary);"
+                    th:text="'S/ ' + ${product.price}">
+                    S/ 0.00
+                </h2>
 
+                <hr>
+
+                <div class="mb-3">
+                    <h6 class="fw-bold">Información del vendedor</h6>
+                    <p class="text-muted mb-1">
+                        Usuario vendedor:
+                        <span th:text="${product.userId}">1</span>
+                    </p>
+                    <small class="text-muted">
+                        Los datos de contacto se mostrarán cuando la solicitud sea aceptada.
+                    </small>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold">Ubicación</h6>
+                    <p class="text-muted mb-0"
+                       th:if="${product.location != null}"
+                       th:text="${product.location.district + ', ' + product.location.city}">
+                    </p>
+                    <p class="text-muted mb-0"
+                       th:if="${product.location == null}">
+                        Ubicación no especificada
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <form th:action="@{'/orders/request'}" method="post">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <button type="submit" class="btn btn-main w-100">
+                            Me interesa
+                        </button>
+                    </form>
+
+                    <a href="/" class="btn btn-outline-main w-100">
+                        Volver al inicio
+                    </a>
+                </div>
+
+            </div>
         </div>
 
     </div>
 
 </div>
+
 </html>

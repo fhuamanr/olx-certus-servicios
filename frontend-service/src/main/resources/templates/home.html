@@ -4,61 +4,141 @@
 
 <div th:fragment="content">
 
-    <!-- HERO -->
-    <div class="p-4 mb-4 bg-light rounded text-center">
-        <h2>Compra y vende fácil</h2>
-        <p>Encuentra productos cerca de ti</p>
-    </div>
-
-    <!-- SIN PRODUCTOS -->
-    <div th:if="${#lists.isEmpty(products)}" class="alert alert-info text-center">
-        No hay productos disponibles
-    </div>
-
-    <!-- LISTADO PRODUCTOS -->
-    <div class="row" th:if="${!#lists.isEmpty(products)}">
-
-        <div class="col-md-3 mb-4" th:each="p : ${products}">
-            <div class="card h-100 shadow-sm border-0">
-
-                <!-- Imagen -->
-				<img th:src="${p.images != null and !#lists.isEmpty(p.images) 
-				               ? p.images[0].url 
-				               : 'https://via.placeholder.com/300x200'}"
-				     class="card-img-top">
-
-                <div class="card-body d-flex flex-column">
-
-                    <!-- Categoría -->
-					<span class="badge bg-secondary"
-					      th:text="${p.category != null ? p.category.name : 'Sin categoría'}">
-					</span>
-
-                    <!-- Nombre -->
-                    <h6 class="fw-bold" th:text="${p.name}"></h6>
-
-                    <!-- Descripción -->
-                    <p class="text-muted small mb-2"
-                       th:text="${p.description}">
-                    </p>
-
-                    <!-- Precio -->
-                    <h5 class="text-success fw-bold mb-3"
-                        th:text="'S/ ' + ${p.price}">
-                    </h5>
-
-                    <!-- Botón -->
-                    <a th:href="@{'/products/' + ${p.id}}"
-                       class="btn btn-outline-primary mt-auto">
-                        Ver detalle
+    <section class="hero-section mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <h1 class="display-5 fw-bold mb-3">
+                    Compra y vende fácil en OLX Certus
+                </h1>
+                <p class="lead mb-4">
+                    Publica productos, encuentra oportunidades y coordina directamente con otros usuarios.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="/products/new" class="btn btn-main">
+                        Publicar producto
                     </a>
-
+                    <a href="/categories" class="btn btn-outline-main">
+                        Ver categorías
+                    </a>
                 </div>
+            </div>
 
+            <div class="col-md-5 text-center d-none d-md-block">
+                <div class="bg-white rounded-4 p-4 shadow-sm">
+                    <h5 class="fw-bold mb-3">Marketplace tipo OLX</h5>
+                    <p class="text-muted mb-0">
+                        Sin carrito tradicional. El comprador genera una solicitud y coordina con el vendedor.
+                    </p>
+                </div>
             </div>
         </div>
+    </section>
 
-    </div>
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">Categorías destacadas</h3>
+            <a href="/categories" class="text-decoration-none">Ver todas</a>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Tecnología</h6>
+                    <p class="text-muted small mb-0">Celulares, laptops y accesorios</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Hogar</h6>
+                    <p class="text-muted small mb-0">Muebles y decoración</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Moda</h6>
+                    <p class="text-muted small mb-0">Ropa, zapatillas y más</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Audio</h6>
+                    <p class="text-muted small mb-0">Audífonos y parlantes</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Vehículos</h6>
+                    <p class="text-muted small mb-0">Autos, motos y repuestos</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-6">
+                <div class="category-card p-3">
+                    <h6 class="fw-bold mb-1">Otros</h6>
+                    <p class="text-muted small mb-0">Oportunidades varias</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title mb-0">Productos recientes</h3>
+            <span class="text-muted small" th:if="${!#lists.isEmpty(products)}"
+                  th:text="${#lists.size(products)} + ' productos disponibles'">
+            </span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(products)}" class="empty-state">
+            <h5 class="fw-bold">Aún no hay productos publicados</h5>
+            <p class="text-muted mb-3">
+                Crea el primer producto para iniciar el flujo de publicación y solicitudes.
+            </p>
+            <a href="/products/new" class="btn btn-main">Publicar ahora</a>
+        </div>
+
+        <div class="row g-4" th:if="${!#lists.isEmpty(products)}">
+
+            <div class="col-lg-3 col-md-4 col-sm-6" th:each="p : ${products}">
+                <div class="card product-card h-100">
+
+                    <img th:src="${p.images != null and !#lists.isEmpty(p.images) 
+                                   ? p.images[0].url 
+                                   : 'https://via.placeholder.com/500x350?text=Producto'}"
+                         class="card-img-top product-img"
+                         alt="Producto">
+
+                    <div class="card-body d-flex flex-column">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-light text-dark"
+                                  th:text="${p.category != null ? p.category.name : 'Sin categoría'}">
+                            </span>
+                            <span class="badge bg-success"
+                                  th:text="${p.status != null ? p.status : 'ACTIVE'}">
+                            </span>
+                        </div>
+
+                        <h6 class="fw-bold mb-1" th:text="${p.name}">Producto</h6>
+
+                        <p class="text-muted small mb-2"
+                           th:text="${p.description}">
+                        </p>
+
+                        <h5 class="fw-bold mb-3" style="color: var(--primary);"
+                            th:text="'S/ ' + ${p.price}">
+                        </h5>
+
+                        <a th:href="@{'/products/' + ${p.id}}"
+                           class="btn btn-outline-main mt-auto">
+                            Ver detalle
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
 
 </div>
 

@@ -1,51 +1,86 @@
 <div th:fragment="header">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-    <div class="container">
-
-        <!-- LOGO -->
-        <a class="navbar-brand fw-bold" href="/">
-            OLX <span class="fw-light">Certus</span>
-        </a>
-
-        <!-- BOTON MOBILE -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- CONTENIDO -->
-        <div class="collapse navbar-collapse" id="navbarMain">
-
-            <!-- BUSCADOR -->
-            <form class="d-flex mx-auto w-50">
-                <input class="form-control me-2 rounded-pill" type="search" placeholder="¿Qué estás buscando?">
-                <button class="btn btn-light rounded-pill px-4">Buscar</button>
-            </form>
-
-            <!-- ACCIONES -->
-            <div class="d-flex align-items-center gap-2">
-
-                <a class="nav-link text-white" href="/categories">
-                    Categorías
-                </a>
-
-				<a href="/register" class="btn btn-outline-light btn-sm">
-				    Registrarse
-				</a>
-				
-				<a href="/login" class="btn btn-outline-light btn-sm">
-				    Login
-				</a>
-
-                <a href="/products/new" class="btn btn-warning btn-sm fw-bold">
-                    + Publicar
-                </a>
-
-            </div>
-
+    <div class="topbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>Compra y vende productos cerca de ti</span>
+            <span>Proyecto Microservicios - Certus</span>
         </div>
-
     </div>
-</nav>
+
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+
+            <a class="brand-text" href="/">
+                OLX <span style="font-weight: 400;">Certus</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+
+                <form class="d-flex mx-auto w-50">
+                    <input class="form-control search-box me-2" type="search" placeholder="Buscar productos, marcas o categorías">
+                    <button class="btn btn-main" type="submit">Buscar</button>
+                </form>
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <a class="text-decoration-none text-dark" href="/categories">
+                        Categorías
+                    </a>
+
+                    <!-- 🔥 USUARIO LOGUEADO -->
+                    <div th:if="${session.loggedUser != null}" class="dropdown">
+
+                        <a class="text-decoration-none text-dark dropdown-toggle"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown">
+                            Hola, <span th:text="${session.loggedUser.name}">Usuario</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="/my-products">
+                                    Mis publicaciones
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/my-orders">
+                                    Mis solicitudes
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/seller-orders">
+                                    Solicitudes recibidas
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="/logout">
+                                    Cerrar sesión
+                                </a>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                    <!-- 🔥 SI NO ESTÁ LOGUEADO -->
+                    <a th:if="${session.loggedUser == null}"
+                       href="/login"
+                       class="text-decoration-none text-dark">
+                        Cuenta
+                    </a>
+
+                    <a href="/products/new" class="btn btn-publish">
+                        + Publicar
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </nav>
 
 </div>

@@ -7,9 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import pe.frontend.service.service.CategoryClientService;
 import pe.frontend.service.service.ProductClientService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import pe.frontend.service.model.LoginResponse;
 import pe.frontend.service.model.Product;
 
 @Controller
@@ -32,17 +37,39 @@ public class ProductViewController {
     }
     
     @PostMapping("/products/create")
-    public String create(@ModelAttribute Product product) {
+    public String create(@ModelAttribute Product product,
+                         HttpSession session,
+                         RedirectAttributes redirectAttributes) {
+
+        LoginResponse loggedUser = (LoginResponse) session.getAttribute("loggedUser");
+
+        if (loggedUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para publicar un producto.");
+            return "redirect:/login";
+        }
+
+        // 🔥 CLAVE: asignar vendedor
+        product.setUserId(loggedUser.getUserId());
 
         service.createProduct(product);
 
+        redirectAttributes.addFlashAttribute("success", "Producto publicado correctamente.");
         return "redirect:/";
     }
     
     @GetMapping("/products/new")
-    public String newProduct(Model model) {
+    public String newProduct(Model model,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+
+        if (session.getAttribute("loggedUser") == null) {
+            redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para publicar un producto.");
+            return "redirect:/login";
+        }
+
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categoryService.getAll());
+
         return "create-product";
     }
     
