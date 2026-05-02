@@ -4,6 +4,9 @@
 
 <div th:fragment="content">
 
+    <div th:if="${success}" class="alert alert-success rounded-4" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger rounded-4" th:text="${error}"></div>
+
     <div class="row g-4">
 
         <div class="col-lg-7">
@@ -39,9 +42,7 @@
                     </span>
                 </div>
 
-                <h1 class="fw-bold mb-2" th:text="${product.name}">
-                    Producto
-                </h1>
+                <h1 class="fw-bold mb-2" th:text="${product.name}">Producto</h1>
 
                 <p class="text-muted mb-3" th:text="${product.description}">
                     Descripción del producto
@@ -67,18 +68,28 @@
 
                 <div class="mb-4">
                     <h6 class="fw-bold">Ubicación</h6>
-                    <p class="text-muted mb-0"
-                       th:if="${product.location != null}"
-                       th:text="${product.location.district + ', ' + product.location.city}">
-                    </p>
-                    <p class="text-muted mb-0"
-                       th:if="${product.location == null}">
+
+                    <div th:if="${product.location != null}">
+                        <p class="text-muted mb-1"
+                           th:text="${product.location.city != null ? product.location.city : 'Ciudad no especificada'}">
+                        </p>
+
+                        <p class="text-muted mb-1"
+                           th:text="${product.location.address != null ? product.location.address : 'Dirección no especificada'}">
+                        </p>
+
+                        <small class="text-muted"
+                               th:text="${product.location.country != null ? product.location.country : 'País no especificado'}">
+                        </small>
+                    </div>
+
+                    <p class="text-muted mb-0" th:if="${product.location == null}">
                         Ubicación no especificada
                     </p>
                 </div>
 
                 <div class="d-grid gap-2">
-                    <form th:action="@{'/orders/request'}" method="post">
+                    <form th:action="@{/orders/request}" method="post">
                         <input type="hidden" name="productId" th:value="${product.id}">
                         <button type="submit" class="btn btn-main w-100">
                             Me interesa

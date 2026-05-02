@@ -12,9 +12,19 @@ public class Product {
     private Double price;
     private Long userId;
     private Category category;
+    private String status;
     private List<Image> images;
     private List<Attribute> attributes;
     private Location location;
+    
+    
+    
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	public Long getId() {
 		return id;
 	}
