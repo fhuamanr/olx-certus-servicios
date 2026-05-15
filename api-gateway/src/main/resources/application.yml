@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products/**,/api/categories/**,/api/product-images/**,/api/product-attributes/**,/api/product-locations/**
+              filters:
+                - StripPrefix=1
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - StripPrefix=1
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - StripPrefix=1
+            - id: product-service-docs
+              uri: lb://product-service
+              predicates:
+                - Path=/docs/product-service/api-docs
+              filters:
+                - StripPrefix=2
+            - id: user-service-docs
+              uri: lb://user-service
+              predicates:
+                - Path=/docs/user-service/api-docs
+              filters:
+                - StripPrefix=2
+            - id: order-service-docs
+              uri: lb://order-service
+              predicates:
+                - Path=/docs/order-service/api-docs
+              filters:
+                - StripPrefix=2
+            - id: frontend-service
+              uri: lb://frontend-service
+              predicates:
+                - Path=/,/login,/register,/logout,/products/**,/categories/**,/orders/**,/css/**,/js/**,/images/**,/webjars/**
+
+server:
+  port: 8084
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: product-service
+        url: /docs/product-service/api-docs
+      - name: user-service
+        url: /docs/user-service/api-docs
+      - name: order-service
+        url: /docs/order-service/api-docs
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

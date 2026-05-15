@@ -3,6 +3,7 @@ package pe.frontend.service.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
@@ -27,9 +28,18 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute User user) {
-        service.register(user);
-        return "redirect:/";
+    public String register(@ModelAttribute User user,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            service.register(user);
+            redirectAttributes.addFlashAttribute("success", "Cuenta creada correctamente. Ya puedes iniciar sesión.");
+            return "redirect:/login";
+        } catch (RestClientResponseException e) {
+            model.addAttribute("user", user);
+            model.addAttribute("error", resolveRegisterError(e));
+            return "register";
+        }
     }
     
     @GetMapping("/login")
@@ -57,5 +67,19 @@ public class AuthController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    private String resolveRegisterError(RestClientResponseException e) {
+        String response = e.getResponseBodyAsString();
+
+        if (response != null && response.contains("Email already exists")) {
+            return "El correo ya existe. Usa otro correo o inicia sesión.";
+        }
+
+        if (e.getStatusCode().is4xxClientError()) {
+            return "No se pudo crear la cuenta. Revisa los datos ingresados.";
+        }
+
+        return "No se pudo crear la cuenta. Intenta nuevamente.";
     }
 }

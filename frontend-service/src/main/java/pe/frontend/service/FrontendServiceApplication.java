@@ -2,6 +2,10 @@ package pe.frontend.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.filter.RelativeRedirectFilter;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class FrontendServiceApplication {
@@ -10,4 +14,14 @@ public class FrontendServiceApplication {
 		SpringApplication.run(FrontendServiceApplication.class, args);
 	}
 
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	public RelativeRedirectFilter relativeRedirectFilter() {
+		return new RelativeRedirectFilter();
+	}
 }
