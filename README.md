@@ -19,6 +19,7 @@ El sistema permite registrar usuarios, iniciar sesion, publicar productos, lista
 | RabbitMQ | Mensajeria entre servicios |
 | Docker Compose | Orquestacion local |
 | Maven Wrapper | Build reproducible por servicio |
+| Coolify | Gestor de contenedores para el despliegue en la nube |
 
 ## Arquitectura
 
